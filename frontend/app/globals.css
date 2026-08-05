@@ -1,0 +1,285 @@
+:root {
+  --bg: #f4f6f8;
+  --panel: #ffffff;
+  --text: #1a2332;
+  --muted: #5c6b7a;
+  --accent: #0d6e6e;
+  --accent-soft: #e6f3f3;
+  --danger: #b42318;
+  --warn: #b54708;
+  --border: #d8e0e8;
+  --companion: #eef4ff;
+  --resident: #f7f2ea;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tabs button {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+select,
+textarea,
+.panel-setup input,
+.panel-setup select {
+  width: 100%;
+  font: inherit;
+}
+
+select,
+input,
+textarea {
+  font: inherit;
+}
+
+select,
+textarea,
+.panel-setup input,
+.panel-setup select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.75rem;
+}
+
+input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+}
+
+.panel-setup button.primary {
+  width: 100%;
+}
+
+button.primary {
+  border: none;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font: inherit;
+}
+
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 420px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.bubble {
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  max-width: 85%;
+}
+
+.bubble.companion {
+  align-self: flex-start;
+  background: var(--companion);
+}
+
+.bubble.resident {
+  align-self: flex-end;
+  background: var(--resident);
+}
+
+.bubble .role {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.compose {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compose input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.compose button.primary,
+.compose button.secondary {
+  flex: 0 0 auto;
+  width: auto;
+  margin: 0;
+}
+
+.session-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.session-list li {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.session-list li.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.metric {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.metric strong {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.recommendation.urgent {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.recommendation.visit_soon {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.topics {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.topics th,
+.topics td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.45rem 0.35rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.errors {
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  color: var(--danger);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .grid,
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+}
