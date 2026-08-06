@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
+from backend.rag.vocab.normalize import normalize_resident_text
+
 from ..analyst import run_analyst
 from ..companion import generate_companion_reply
 from ..db import append_turn, create_session, end_session, get_session, list_sessions, save_report
@@ -16,7 +18,6 @@ def _to_summary(session: dict) -> SessionSummary:
         resident_id=session["resident_id"],
         preferred_name=session["preferred_name"],
         locale=session["locale"],
-        speech_register=session["speech_register"],
         room_id=session["room_id"],
         status=session["status"],
         created_at=session["created_at"],
@@ -49,7 +50,6 @@ def session_entry(body: EntryRequest):
         resident_id=body.resident_id,
         preferred_name=preferred_name,
         locale=locale,
-        speech_register=body.speech_register,
         room_id=body.room_id,
         opening_message=greeting,
     )
@@ -72,14 +72,19 @@ async def session_message(session_id: str, body: MessageRequest):
     if session["status"] != "active":
         raise HTTPException(status_code=400, detail="Session has ended")
 
-    append_turn(session_id, "resident", body.text.strip())
+    resident_text = body.text.strip()
+    append_turn(
+        session_id,
+        "resident",
+        resident_text,
+        text_normalized=normalize_resident_text(resident_text, session["locale"]),
+    )
     session = get_session(session_id)
     assert session
 
     reply, _warnings = await generate_companion_reply(
         preferred_name=session["preferred_name"],
         locale=session["locale"],
-        speech_register=session["speech_register"],
         transcript=session["transcript"],
     )
     append_turn(session_id, "companion", reply)

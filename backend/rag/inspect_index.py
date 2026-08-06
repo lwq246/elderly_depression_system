@@ -6,12 +6,19 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from backend.app.config import settings
-from backend.rag.store import COLLECTION_NAME, get_collection
+from backend.rag.store import (
+    POLICY_COLLECTION_NAME,
+    VOCAB_COLLECTION_NAME,
+    collection_counts,
+    get_policy_collection,
+    get_vocab_collection,
+)
 
 
 def _preview(text: str, limit: int) -> str:
@@ -21,64 +28,160 @@ def _preview(text: str, limit: int) -> str:
     return one_line[: limit - 3] + "..."
 
 
-def inspect_index(*, section: str | None, full: bool, preview_chars: int, as_json: bool) -> int:
-    collection = get_collection()
-    count = collection.count()
+def _build_where(
+    *,
+    locale: str | None,
+    section: str | None,
+    term: str | None,
+) -> dict[str, Any] | None:
+    clauses: list[dict[str, Any]] = []
+    if locale:
+        clauses.append({"locale": locale})
+    if section:
+        clauses.append({"section": section})
+    if term:
+        clauses.append({"term": term})
+    if not clauses:
+        return None
+    if len(clauses) == 1:
+        return clauses[0]
+    return {"$and": clauses}
 
-    if count == 0:
-        print(f"Collection '{COLLECTION_NAME}' is empty.")
+
+def _fetch_from_collection(
+    collection,
+    *,
+    collection_name: str,
+    locale: str | None = None,
+    section: str | None = None,
+    term: str | None = None,
+) -> list[tuple[str, str, dict[str, Any], str]]:
+    where = _build_where(locale=locale, section=section, term=term)
+    kwargs: dict[str, Any] = {"include": ["metadatas", "documents"]}
+    if where:
+        kwargs["where"] = where
+    data = collection.get(**kwargs)
+    rows = [
+        (collection_name, chunk_id, meta, doc)
+        for chunk_id, meta, doc in zip(
+            data["ids"],
+            data["metadatas"],
+            data["documents"],
+            strict=False,
+        )
+    ]
+    rows.sort(
+        key=lambda row: (
+            row[2].get("locale", ""),
+            row[2].get("term", ""),
+            row[2].get("section", ""),
+        )
+    )
+    return rows
+
+
+def fetch_chunks(
+    *,
+    doc_type: str | None = None,
+    locale: str | None = None,
+    section: str | None = None,
+    term: str | None = None,
+) -> list[tuple[str, str, dict[str, Any], str]]:
+    """Return (collection_name, id, metadata, document) rows."""
+    rows: list[tuple[str, str, dict[str, Any], str]] = []
+    if doc_type in (None, "facility_policy"):
+        rows.extend(
+            _fetch_from_collection(
+                get_policy_collection(),
+                collection_name=POLICY_COLLECTION_NAME,
+                locale=locale,
+                section=section,
+                term=term,
+            )
+        )
+    if doc_type in (None, "culture_vocabulary"):
+        rows.extend(
+            _fetch_from_collection(
+                get_vocab_collection(),
+                collection_name=VOCAB_COLLECTION_NAME,
+                locale=locale,
+                section=section,
+                term=term,
+            )
+        )
+    return rows
+
+
+def inspect_index(
+    *,
+    doc_type: str | None,
+    locale: str | None,
+    section: str | None,
+    term: str | None,
+    full: bool,
+    preview_chars: int,
+    as_json: bool,
+) -> int:
+    counts = collection_counts()
+    if counts["total"] == 0:
+        print("Chroma collections are empty.")
         print(f"Chroma path: {settings.rag_chroma_path}")
+        print(f"  {POLICY_COLLECTION_NAME}: 0")
+        print(f"  {VOCAB_COLLECTION_NAME}: 0")
         print("Run: C:/Python314/python.exe backend/rag/ingest.py --reset")
         return 1
 
-    if section:
-        result = collection.get(
-            where={"section": section},
-            include=["documents", "metadatas"],
-            limit=1,
-        )
-        if not result["ids"]:
-            print(f"No chunk with section={section!r}")
-            return 1
-        rows = list(zip(result["metadatas"], result["documents"], strict=False))
-    else:
-        data = collection.get(include=["metadatas", "documents"])
-        rows = sorted(
-            zip(data["metadatas"], data["documents"], strict=False),
-            key=lambda x: x[0].get("section", ""),
-        )
+    rows = fetch_chunks(doc_type=doc_type, locale=locale, section=section, term=term)
+    if not rows:
+        print("No chunks matched the filters.")
+        return 1
 
     if as_json:
         payload = []
-        for meta, doc in rows:
+        for collection_name, chunk_id, meta, doc in rows:
             payload.append(
                 {
+                    "collection": collection_name,
+                    "id": chunk_id,
                     "section": meta.get("section"),
-                    "source": meta.get("source"),
-                    "type": meta.get("type"),
                     "locale": meta.get("locale"),
+                    "term": meta.get("term"),
                     "topic_id": meta.get("topic_id"),
-                    "chars": len(doc),
                     "text": doc if full else _preview(doc, preview_chars),
                 }
             )
-        print(json.dumps({"collection": COLLECTION_NAME, "count": count, "chunks": payload}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "path": settings.rag_chroma_path,
+                    "collections": {
+                        POLICY_COLLECTION_NAME: counts["policy"],
+                        VOCAB_COLLECTION_NAME: counts["vocabulary"],
+                    },
+                    "matched": len(payload),
+                    "chunks": payload,
+                },
+                indent=2,
+            )
+        )
         return 0
 
-    print(f"Collection: {COLLECTION_NAME}")
     print(f"Chroma path: {settings.rag_chroma_path}")
-    print(f"Chunks: {count}")
-    print("Note: domain rubrics are in the analyst system prompt. This index is facility SOP only.")
+    print(f"  {POLICY_COLLECTION_NAME}: {counts['policy']} chunks")
+    print(f"  {VOCAB_COLLECTION_NAME}: {counts['vocabulary']} chunks")
+    print(f"Matched: {len(rows)}")
     print()
 
-    for i, (meta, doc) in enumerate(rows, start=1):
-        print(f"--- {i}. {meta.get('section', '(no section)')} ---")
-        print(f"source:  {meta.get('source')}")
-        print(f"type:    {meta.get('type')}")
-        print(f"locale:  {meta.get('locale')}")
+    for i, (collection_name, chunk_id, meta, doc) in enumerate(rows, start=1):
+        label = meta.get("term") or meta.get("section", "(no section)")
+        print(f"--- {i}. {label} ---")
+        print(f"collection: {collection_name}")
+        print(f"id:         {chunk_id}")
+        print(f"locale:     {meta.get('locale')}")
+        if meta.get("term"):
+            print(f"term:       {meta.get('term')}")
         if meta.get("topic_id"):
-            print(f"topic_id: {meta.get('topic_id')}")
-        print(f"chars:   {len(doc)}")
+            print(f"topic_id:   {meta.get('topic_id')}")
         print()
         print(doc if full else _preview(doc, preview_chars))
         print()
@@ -87,15 +190,26 @@ def inspect_index(*, section: str | None, full: bool, preview_chars: int, as_jso
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Inspect Chroma supplemental RAG chunks")
-    parser.add_argument("--section", help="Show one chunk by exact section heading")
+    parser = argparse.ArgumentParser(description="Inspect Chroma RAG chunks")
+    parser.add_argument(
+        "--type",
+        dest="doc_type",
+        choices=("facility_policy", "culture_vocabulary"),
+        help="Which collection to show (default: both)",
+    )
+    parser.add_argument("--locale", help="Locale filter (e.g. en-SG, en-AU)")
+    parser.add_argument("--section", help="Exact section heading filter")
+    parser.add_argument("--term", help="Vocabulary term filter (e.g. sian)")
     parser.add_argument("--full", action="store_true", help="Print full chunk text")
     parser.add_argument("--preview", type=int, default=200, help="Preview length when not using --full")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     args = parser.parse_args()
     raise SystemExit(
         inspect_index(
+            doc_type=args.doc_type,
+            locale=args.locale,
             section=args.section,
+            term=args.term,
             full=args.full,
             preview_chars=args.preview,
             as_json=args.json,

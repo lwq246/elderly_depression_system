@@ -43,11 +43,11 @@ Optional: `culture-*/local-vocabulary.md` for audit — not required in API prom
 ```
 1. screening-conversation/companion-runtime.md   (universal rules — slim)
 2. culture-{locale}/companion-runtime.md         (speech and cultural tone — slim)
-3. culture-{locale}/local-vocabulary.md          (extracted sections at runtime)
+3. Retrieved culture vocabulary (RAG per turn)   (from local-vocabulary.md index)
 4. Resident context                              (preferred_name, speech_register)
 ```
 
-Full `SKILL.md` files remain for Cursor skills and audit; the API loads **companion-runtime** variants to keep prompts smaller.
+Full `SKILL.md` and `local-vocabulary.md` files remain for Cursor skills and audit; the API loads **companion-runtime** plus **RAG vocabulary** at each turn when `RAG_ENABLED` and `RAG_VOCAB_ENABLED` are true.
 
 **Legacy assembly (documentation only):**
 

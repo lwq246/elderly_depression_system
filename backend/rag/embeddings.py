@@ -4,20 +4,7 @@ import httpx
 
 from backend.app.config import settings
 
-# # List all chunks (200-char preview)
-# C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\inspect_index.py
 
-# # Full text for every chunk
-# C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\inspect_index.py --full
-
-# # One chunk by section heading
-# C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\inspect_index.py --section "Severity guide"
-
-# # JSON output
-# C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\inspect_index.py --json
-
-# # Longer/shorter preview
-# C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\inspect_index.py --preview 400
 def embed_texts(texts: list[str]) -> list[list[float]]:
     if not texts:
         return []

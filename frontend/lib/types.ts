@@ -8,6 +8,8 @@ export interface Resident {
 export interface TranscriptTurn {
   role: "companion" | "resident";
   text: string;
+  /** Culture terms replaced with general meanings; resident turns only. */
+  text_normalized?: string;
   at: string;
 }
 
@@ -41,7 +43,6 @@ export interface Session {
   resident_id: string;
   preferred_name: string | null;
   locale: string;
-  speech_register: string;
   room_id: string | null;
   status: string;
   transcript: TranscriptTurn[];
@@ -56,7 +57,6 @@ export interface SessionSummary {
   resident_id: string;
   preferred_name: string | null;
   locale: string;
-  speech_register: string;
   room_id: string | null;
   status: string;
   created_at: string;

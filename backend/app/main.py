@@ -31,11 +31,16 @@ def on_startup() -> None:
 @app.get("/api/health")
 def health():
     rag_chunks = 0
+    rag_policy_chunks = 0
+    rag_vocab_chunks = 0
     if settings.rag_enabled:
         try:
-            from backend.rag.store import collection_count
+            from backend.rag.store import collection_counts
 
-            rag_chunks = collection_count()
+            counts = collection_counts()
+            rag_chunks = counts["total"]
+            rag_policy_chunks = counts["policy"]
+            rag_vocab_chunks = counts["vocabulary"]
         except Exception:
             rag_chunks = -1
 
@@ -47,4 +52,6 @@ def health():
         "rag_enabled": settings.rag_enabled,
         "rag_use_llm_summary": settings.rag_use_llm_summary,
         "rag_chunks": rag_chunks,
+        "rag_policy_chunks": rag_policy_chunks,
+        "rag_vocab_chunks": rag_vocab_chunks,
     }

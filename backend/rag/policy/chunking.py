@@ -1,3 +1,5 @@
+"""Facility policy markdown chunking for Chroma ingest."""
+
 from pathlib import Path
 
 import re
@@ -13,14 +15,10 @@ def _topic_id_from_heading(heading: str) -> str | None:
 
 def _base_metadata(
     *,
-    source: str,
-    doc_type: str,
     locale: str,
     section: str,
 ) -> dict[str, str]:
     meta: dict[str, str] = {
-        "source": source,
-        "type": doc_type,
         "locale": locale,
         "section": section,
     }
@@ -45,8 +43,6 @@ def _make_chunk(
         "id": f"{source}:{section}",
         "text": body,
         "metadata": _base_metadata(
-            source=source,
-            doc_type=doc_type,
             locale=locale,
             section=section,
         ),

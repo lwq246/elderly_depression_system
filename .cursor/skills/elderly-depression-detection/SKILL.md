@@ -67,7 +67,7 @@ Map observations to **9 life domains** (GDS-inspired, rephrased — not a formal
 **Late-life pattern:** loss of **interest** and **withdrawal** often matter more than sadness alone.
 
 For each domain, set:
-- `discussed: true` + `concern: true/false` + `evidence` (quote) — topic was covered
+- `discussed: true` + `concern: true/false` + `evidence` (resident line ref `R1`, `R2`, …) — topic was covered
 - `discussed: false` + `concern: false` + `evidence: ""` — topic never came up
 
 For `coping_strengths`, `concern: false` unless the resident has **no** supports and expresses inability to cope.
@@ -142,7 +142,7 @@ Respond **only** with valid JSON matching this schema:
       "topic_id": "interest_activities",
       "label": "Interest & activities",
       "concern": true,
-      "evidence": "I don't go to bingo anymore.",
+      "evidence": "R1",
       "discussed": true
     }
   ],
@@ -163,7 +163,7 @@ Respond **only** with valid JSON matching this schema:
 ### Required fields
 
 - Include **all 9** `topic_id` values listed above
-- `evidence` must be short verbatim quotes copied from the conversation
+- `evidence` must be a resident line reference from the transcript (`R1`, `R2`, …) when `concern` is true — the system resolves it to the verbatim resident line
 - `indicators`: at least one per domain (`emotional`, `behavioural`, `physical`, `elderly_specific`) where supported; omit domains with no evidence
 - `explanation`: what was discussed, what raised concern, what was not covered
 

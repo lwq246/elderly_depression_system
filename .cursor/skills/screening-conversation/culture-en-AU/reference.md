@@ -36,8 +36,38 @@ Principles distilled for **en-AU** speech adaptation. Not a reproduction of sour
 | Cultural Diversity in Ageing — Communication practice guide | https://www.culturaldiversity.com.au/files/Communication.pdf | Plain English; avoid colloquialism for CALD |
 | Multicultural NSW Playbook — plain English | https://playbook.multicultural.nsw.gov.au/chapters/creative-and-translations/ | No puns/colloquialism; reading age 9 |
 | My Aged Care — CALD support | https://www.myagedcare.gov.au/support-cald-people | Culturally appropriate communication rights |
+| healthdirect — Depression in older people | https://www.healthdirect.gov.au/depression-in-older-people | Somatic presentation; stigma; "not coping" |
+| NSW Health — Wellbeing in Later Life | https://www.health.nsw.gov.au/mentalhealth/resources/Publications/wellbeing-in-later-life.pdf | Beyond Blue; older adult mental health programs |
+| AIHW — CALD older Australians | https://www.aihw.gov.au/reports/older-people/older-australians/contents/population-groups-of-interest/culturally-linguistically-diverse-people | Language diversity in RAC; plain English priority |
+| ANU ANDC — Australian words (crook, etc.) | https://slll.cass.anu.edu.au/centres/andc/meanings-origins/t | Authentic Aus. word meanings |
+| PalliAGED — Mental illness in practice | https://www.palliaged.com.au/Improving-Care/Complex-Needs/Mental-Illness | Mood/withdrawal cues in aged care |
 
-Full word lists: [local-vocabulary.md](local-vocabulary.md)
+Canonical term list (runtime): `backend/rag/vocab/data.py` → Chroma collection `screening-culture-vocabulary`.
+
+## Culture vocabulary RAG (en-AU)
+
+Distilled for companion per-turn retrieval. One general meaning per row. **Not** sent verbatim to residents — injected when a resident uses a matching term.
+
+| Term group (examples) | General meaning | Primary sources |
+|-----------------------|-----------------|-----------------|
+| crook, crook as a dog | unwell | ANDC; Aus. slang usage |
+| flat, bit blue, not myself, black dog, down in the dumps | low mood | healthdirect; Beyond Blue / Black Dog Institute public language |
+| knackered, worn out, buggered, rooted, stuffed, run down | exhausted / fatigue | Informal Aus. fatigue terms; healthdirect somatic cues |
+| off your food, gone off my food | low appetite | RAC daily-life phrasing |
+| not sleeping, crappy sleep | poor sleep | healthdirect somatic depression |
+| aches and pains, everything hurts | pain | healthdirect older depression presentation |
+| keeping to yourself, a bit quiet | withdrawal | PalliAGED; RAC behavioural cues |
+| nothing to do, bored stiff, can't be bothered | boredom / low energy / withdrawal | RAC boredom/loneliness literature (ABC, NARI themes) |
+| lonely, a bit lonely | loneliness | AIHW CALD; IJERPH rural loneliness |
+| she'll be right, don't get lonely | minimising | RRH stoicism; IJERPH "don't get lonely" |
+| doing it tough, tough time, hard yakka | struggling | Open Arms; everyday Aus. hardship phrasing |
+| overwhelmed, stressed out | overwhelmed | Plain-language distress (CALD-safe when resident-led) |
+| dusty, ropeable | irritable / angry | Green's Dictionary of Slang; men's irritable presentation (NARI, PMC2981127) |
+| been going, how you going | how are you | Standard Aus. wellbeing opener |
+
+**Excluded deliberately:** `flat out` (means busy, not low mood), `gone off` alone (spoiled food), `yarn` (conversation, not a symptom).
+
+**CALD note:** Mirror colloquial terms only when the resident uses them first; default to plain English ([Communication practice guide](https://www.culturaldiversity.com.au/files/Communication.pdf)).
 
 ## Also draws on (shared communication skill)
 

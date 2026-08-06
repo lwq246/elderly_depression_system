@@ -89,11 +89,13 @@ frontend/lib/       API client + types
 data/            SQLite + RAG Chroma index (created at runtime)
 ```
 
-## RAG (analyst only — optional)
+## RAG (optional)
 
 **Domain criteria:** loaded directly into the analyst system prompt from `reference.md` (always — no RAG).
 
-**RAG (optional):** facility operational SOP from `.cursor/skills/facility-policy/` (`en-SG.md`, `en-AU.md`). Retrieved by session locale at analyst time when `RAG_ENABLED=true`.
+**RAG (optional, `RAG_ENABLED=true`):**
+- **Analyst:** facility operational SOP from `.cursor/skills/facility-policy/` (`en-SG.md`, `en-AU.md`), retrieved by session locale at exit.
+- **Companion:** per-turn culture vocabulary from `backend/rag/vocab/data.py` (Chroma), matched against the resident's latest message.
 
 ```powershell
 # 1. Install deps (includes chromadb)
@@ -114,7 +116,7 @@ C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\in
 C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\inspect_index.py --section "Severity guide"
 ```
 
-**Do not index transcripts** (PHI). Companion calls do not use RAG.
+**Do not index transcripts** (PHI).
 
 ## Edge voice (local STT + TTS on ThinkPad / Pi)
 

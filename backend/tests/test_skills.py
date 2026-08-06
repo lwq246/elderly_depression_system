@@ -1,74 +1,49 @@
 import unittest
 
 from backend.app.skills import (
-    _extract_companion_vocabulary,
     load_analyst_system_prompt,
     load_companion_system_prompt,
+    load_greeting,
 )
 
 
 class TestCompanionVocabulary(unittest.TestCase):
-    def test_extract_includes_words_table_skips_policy_and_sources(self):
-        md = """# Title
+    def test_load_companion_no_static_vocab_en_sg(self):
+        prompt = load_companion_system_prompt("en-SG")
+        self.assertNotIn("## Local vocabulary reference", prompt)
+        self.assertNotIn("## Retrieved local vocabulary (this turn)", prompt)
 
-## Policy: mirror-first
-
-| Mode | When |
-|------|------|
-| standard | default |
-
-## Words residents often use (wellbeing screening)
-
-| They may say | Meaning |
-|--------------|---------|
-| sian | bored, fed up |
-
-## Sources
-
-See reference.md
-"""
-        out = _extract_companion_vocabulary(md)
-        self.assertIn("sian", out)
-        self.assertIn("Words residents often use", out)
-        self.assertNotIn("Policy", out)
-        self.assertNotIn("Sources", out)
-
-    def test_load_companion_includes_vocab_reference_en_sg(self):
-        prompt = load_companion_system_prompt("en-SG", "standard")
-        self.assertIn("## Local vocabulary reference", prompt)
-        self.assertIn("sian", prompt)
-        self.assertIn("buay tahan", prompt)
-        self.assertIn("Singlish particles", prompt)
-
-    def test_load_companion_includes_vocab_reference_en_au(self):
-        prompt = load_companion_system_prompt("en-AU", "standard")
-        self.assertIn("## Local vocabulary reference", prompt)
-        self.assertIn("crook", prompt)
-        self.assertIn("CALD caution", prompt)
+    def test_load_companion_no_static_vocab_en_au(self):
+        prompt = load_companion_system_prompt("en-AU")
+        self.assertNotIn("## Local vocabulary reference", prompt)
 
     def test_load_companion_excludes_analyst_mapping(self):
-        prompt = load_companion_system_prompt("en-SG", "standard")
+        prompt = load_companion_system_prompt("en-SG")
         self.assertNotIn("Analyst screening mapping", prompt)
         self.assertNotIn("mood_spirits", prompt)
 
-    def test_load_analyst_includes_locale_gloss_en_sg(self):
+    def test_load_analyst_excludes_locale_gloss(self):
         prompt = load_analyst_system_prompt("en-SG")
-        self.assertIn("sian", prompt)
-        self.assertIn("buay tahan", prompt)
-        self.assertNotIn("she'll be right", prompt)
-
-    def test_load_analyst_includes_locale_gloss_en_au(self):
-        prompt = load_analyst_system_prompt("en-AU")
-        self.assertIn("crook", prompt)
-        self.assertIn("she'll be right", prompt)
+        self.assertNotIn("Analyst locale", prompt)
         self.assertNotIn("buay tahan", prompt)
-
+        prompt_au = load_analyst_system_prompt("en-AU")
+        self.assertNotIn("she'll be right", prompt_au)
 
     def test_companion_prompt_uses_runtime_skills(self):
-        prompt = load_companion_system_prompt("en-SG", "standard")
+        prompt = load_companion_system_prompt("en-SG")
         self.assertIn("Mirror local words (required)", prompt)
+        self.assertIn("burden my children", prompt)
         self.assertIn("Companion runtime rules", prompt)
-        self.assertLess(len(prompt), 16_000)
+        self.assertLess(len(prompt), 14_000)
+
+    def test_load_greeting_with_name_en_sg(self):
+        greeting = load_greeting("en-SG", "Mrs Tan")
+        self.assertIn("Mrs Tan", greeting)
+        self.assertIn("friendly check-in", greeting)
+
+    def test_load_greeting_generic_en_au(self):
+        greeting = load_greeting("en-AU", None)
+        self.assertIn("quiet yarn", greeting)
 
     def test_analyst_prompt_smaller_examples(self):
         prompt = load_analyst_system_prompt("en-SG")

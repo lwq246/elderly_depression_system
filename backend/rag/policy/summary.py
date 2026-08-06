@@ -1,4 +1,4 @@
-"""LLM summary of transcript for RAG query embedding (analyst exit only)."""
+"""LLM summary of transcript for facility policy RAG (analyst exit only)."""
 
 from __future__ import annotations
 

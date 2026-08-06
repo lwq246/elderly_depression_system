@@ -13,7 +13,6 @@ export default function ScreeningConsole() {
   const [session, setSession] = useState<Session | null>(null);
   const [residentId, setResidentId] = useState("R-001");
   const [locale, setLocale] = useState("en-SG");
-  const [speechRegister, setSpeechRegister] = useState<"standard" | "local-light">("standard");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +35,6 @@ export default function ScreeningConsole() {
       const created = await api.entry({
         resident_id: residentId,
         locale,
-        speech_register: speechRegister,
       });
       setSession(created);
       const list = await api.sessions();
@@ -157,17 +155,6 @@ export default function ScreeningConsole() {
             >
               <option value="en-SG">en-SG</option>
               <option value="en-AU">en-AU</option>
-            </select>
-
-            <label htmlFor="register">Speech register</label>
-            <select
-              id="register"
-              value={speechRegister}
-              onChange={(e) => setSpeechRegister(e.target.value as "standard" | "local-light")}
-              disabled={!!session && session.status === "active"}
-            >
-              <option value="standard">standard</option>
-              <option value="local-light">local-light</option>
             </select>
 
             <button

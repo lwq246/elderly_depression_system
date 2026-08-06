@@ -1,6 +1,8 @@
 # Communicating with distressed older adults
 
-Evidence-based guidance distilled from aged-care mental health practice, motivational interviewing (MI), and geriatric depression research. For audit and team review — not read aloud to residents.
+Evidence-based guidance distilled from aged-care mental health practice, motivational interviewing (MI), and geriatric depression research. **For audit and team review — not read aloud to residents** and not loaded into the live companion API prompt by default.
+
+Integrated into: [SKILL.md](SKILL.md) (conversation rules) and [companion-runtime.md](companion-runtime.md) (slim API runtime). Locale-specific sources: [culture-en-SG/reference.md](culture-en-SG/reference.md), [culture-en-AU/reference.md](culture-en-AU/reference.md).
 
 ## Why this matters
 
@@ -84,9 +86,7 @@ When residents are guarded (common, especially older men):
 
 Providers who use **conversational language** (not clinical terms) and take time to put residents at ease elicit more honest answers.
 
-**Older men:** May experience "double stigma" (mental illness + weakness). Many disclose through **somatic complaints** ("stomach ache") rather than mood words. Use stress, coping, and daily function — build rapport before mood probes; never lead with "depression."
-
-Sources: PMC2981127; Gerontology depression screening barriers study (doi:10.1093/geroni/igy023.1890); UC Davis IMPACT gender disparities study.
+Sources: PMC2981127; Gerontology depression screening barriers study (doi:10.1093/geroni/igy023.1890).
 
 ## Validation and listening
 
@@ -113,14 +113,11 @@ Adapt for **no visual contact**:
 - **One question per turn** — stacking overwhelms over audio
 - Confirm understanding: "Does that make sense?" / "Have I understood you right?"
 - Assume **hearing difficulty** — avoid mumbling phrases and long clauses
-- **Pace for processing:** allow natural pauses between ideas; TTS implementations may insert brief breaks (300–800ms) after sentences for clarity
-- **Attention cue before key questions:** e.g. "I'd like to ask you about one thing…" — helps residents focus before a probe (senior-tailored dialog research)
-- Offer repetition: "Feel free to ask me to say that again" — reduces anxiety when they miss a phrase over the speaker
 - Quiet room is a hardware concern; do not apologise for "the speaker" repeatedly
 
 Cannot rely on eye contact or gestures — warmth comes from **word choice, pace, and reflections**.
 
-Sources: Supportive Care MI; RASA RACF communication skills; CMU GetGoing senior dialog system (arXiv:1909.01322).
+Sources: Supportive Care MI; RASA RACF communication skills.
 
 ## Life transitions and grief
 
@@ -171,10 +168,5 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | Somatic symptoms as barrier to detection (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC2805563/ |
 | Help-seeking barriers systematic review (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC10463345/ |
 | Supportive Care — MI with senior residents | https://www.thesupportivecare.com/blog/how-to-use-motivational-interviewing-with-senior-residents |
-| AI call conversations & depression detection (BMC Geriatrics) | https://link.springer.com/article/10.1186/s12877-026-07038-0 |
-| Welzijn.AI responsible conversational AI (arXiv) | https://arxiv.org/html/2502.07983 |
-| CMU GetGoing senior dialog / TTS pacing | https://doi.org/10.48550/arxiv.1909.01322 |
-| ARIIA — Mental health screening tools (AU aged care) | https://www.ariia.org.au/knowledge-implementation-hub/mental-health-and-wellbeing/mental-health-and-wellbeing-evidence-themes/screening-tools |
-| NH suicidal ideation management (LTC guide 2024) | https://nursinghomebehavioralhealth.org/wp-content/uploads/2024/09/WEBSITE_Assessment-and-Initial-Management-of-Suicidal-Ideation-Across-Long-Term-Care-Settings_FINAL_10.15.24_508.pdf |
 
 **Note:** This skill supports screening for staff review, not diagnosis or treatment. Clinical decisions remain with qualified care staff.

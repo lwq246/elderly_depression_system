@@ -899,7 +899,7 @@ def run_scenario(
         rag_summary: str | None = None
         rag_summary_failed = False
         if rag_enabled and spec.get("rag"):
-            from backend.rag.retrieve import retrieve_for_analyst
+            from backend.rag.policy.retrieve import retrieve_for_analyst
 
             rag_result = asyncio.run(retrieve_for_analyst(transcript, locale=session_locale))
             chunks = rag_result.chunks

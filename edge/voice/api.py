@@ -26,12 +26,10 @@ class ScreeningClient:
         *,
         resident_id: str,
         locale: str,
-        speech_register: str = "standard",
     ) -> dict[str, Any]:
         body = {
             "resident_id": resident_id,
             "locale": locale,
-            "speech_register": speech_register,
         }
         with httpx.Client(timeout=TIMEOUT) as client:
             r = client.post(f"{self.base}/api/sessions/entry", json=body)

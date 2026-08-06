@@ -56,7 +56,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Voice screening room (local STT/TTS)")
     parser.add_argument("--resident", default="R-001", help="Resident ID (UWB)")
     parser.add_argument("--locale", default="en-SG", choices=["en-SG", "en-AU"])
-    parser.add_argument("--register", default="standard", choices=["standard", "local-light"])
     parser.add_argument("--api", default=None, help="Backend URL (default VOICE_API_BASE)")
     parser.add_argument("--record-seconds", type=float, default=None)
     args = parser.parse_args()
@@ -77,7 +76,6 @@ def main() -> int:
     session = api.entry(
         resident_id=args.resident,
         locale=args.locale,
-        speech_register=args.register,
     )
     sid = session["id"]
     greeting = last_companion(session)

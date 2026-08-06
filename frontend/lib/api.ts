@@ -20,7 +20,6 @@ export const api = {
   entry: (body: {
     resident_id: string;
     locale?: string;
-    speech_register?: "standard" | "local-light";
     room_id?: string;
   }) =>
     request<Session>("/api/sessions/entry", {
