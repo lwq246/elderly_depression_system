@@ -74,20 +74,31 @@ class NormalizeResidentTextTests(unittest.TestCase):
 
 
 class FormatTranscriptForAnalystTests(unittest.TestCase):
-    def test_labels_resident_lines_with_normalized_text(self) -> None:
+    def test_labels_resident_lines_with_raw_text_and_vocab(self) -> None:
         transcript = [
             {"role": "companion", "text": "How are you?"},
             {
                 "role": "resident",
                 "text": "Very sian lately.",
-                "text_normalized": "Very low mood lately.",
+                "vocab_matches": [{"term": "sian", "meaning": "Low mood; tired of things."}],
             },
         ]
         formatted = format_transcript_for_analyst(transcript)
         self.assertIn("**Companion:** How are you?", formatted)
-        self.assertIn("**Resident [R1]:** Very low mood lately.", formatted)
-        self.assertNotIn("verbatim", formatted)
-        self.assertNotIn("sian", formatted)
+        self.assertIn("**Resident [R1]:** Very sian lately.", formatted)
+        self.assertIn("Local vocabulary (matched this turn):", formatted)
+        self.assertIn("sian → Low mood; tired of things.", formatted)
+
+    def test_omits_vocab_block_when_not_stored_on_turn(self) -> None:
+        transcript = [
+            {
+                "role": "resident",
+                "text": "Very sian lately.",
+            }
+        ]
+        formatted = format_transcript_for_analyst(transcript)
+        self.assertIn("**Resident [R1]:** Very sian lately.", formatted)
+        self.assertNotIn("Local vocabulary (matched this turn):", formatted)
 
     def test_numbers_multiple_resident_turns(self) -> None:
         transcript = [
@@ -104,11 +115,11 @@ class FormatTranscriptForAnalystTests(unittest.TestCase):
             {
                 "role": "resident",
                 "text": "Very sian lately.",
-                "text_normalized": "Very low mood lately.",
+                "vocab_matches": [{"term": "sian", "meaning": "Low mood; tired of things."}],
             }
         ]
         self.assertTrue(evidence_in_transcript("Very sian lately.", transcript))
-        self.assertFalse(evidence_in_transcript("Very low mood lately.", transcript))
+        self.assertFalse(evidence_in_transcript("Low mood; tired of things.", transcript))
 
 
 class ResolveEvidenceRefTests(unittest.TestCase):
@@ -123,7 +134,7 @@ class ResolveEvidenceRefTests(unittest.TestCase):
             {
                 "role": "resident",
                 "text": "Very sian lately.",
-                "text_normalized": "Very low mood lately.",
+                "vocab_matches": [{"term": "sian", "meaning": "Low mood; tired of things."}],
             }
         ]
         report = _minimal_report()

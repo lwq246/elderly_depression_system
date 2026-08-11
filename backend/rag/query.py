@@ -16,11 +16,37 @@ def similarity_from_chroma_distance(distance: float | None) -> float | None:
     return 1.0 - distance
 
 
+def _build_where(
+    *,
+    locale: str | None,
+    pathways: list[str] | None,
+    facility_id: str | None = None,
+    doc_id: str | None = None,
+) -> dict[str, Any] | None:
+    clauses: list[dict[str, Any]] = []
+    if locale and locale != "all":
+        clauses.append({"locale": locale})
+    if facility_id:
+        clauses.append({"facility_id": facility_id})
+    if doc_id:
+        clauses.append({"doc_id": doc_id})
+    if pathways:
+        clauses.append({"pathway": {"$in": pathways}})
+    if not clauses:
+        return None
+    if len(clauses) == 1:
+        return clauses[0]
+    return {"$and": clauses}
+
+
 def query_collection(
     query: str,
     *,
     doc_type: str = "facility_policy",
     locale: str | None = None,
+    pathways: list[str] | None = None,
+    facility_id: str | None = None,
+    doc_id: str | None = None,
     top_k: int | None = None,
     query_embedding: list[float] | None = None,
     apply_similarity_threshold: bool = True,
@@ -31,9 +57,9 @@ def query_collection(
     if collection.count() == 0:
         return []
 
-    where: dict[str, Any] | None = None
-    if locale and locale != "all":
-        where = {"locale": locale}
+    where = _build_where(
+        locale=locale, pathways=pathways, facility_id=facility_id, doc_id=doc_id
+    )
 
     embedding = query_embedding if query_embedding is not None else embed_texts([query])[0]
     result = collection.query(

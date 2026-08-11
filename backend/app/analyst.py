@@ -2,6 +2,7 @@ from typing import Any
 
 from .config import settings
 from .llm import chat_completion, parse_json_response
+from .llm_capture import record_llm_input
 from .skills import load_analyst_system_prompt
 from .validator import (
     format_transcript_for_analyst,
@@ -41,14 +42,24 @@ async def run_analyst(
     system = await _analyst_system_prompt(transcript, locale)
     user = (
         "Analyze this screening transcript and respond with JSON only.\n"
-        "Resident lines use normalized wording and are labelled [R1], [R2], ...\n"
+        "Resident lines are verbatim and labelled [R1], [R2], ... "
+        "Local vocabulary notes (when present) explain culture-specific terms matched that turn — "
+        "use them for interpretation; evidence must still cite R1, R2, ... not the glossary text.\n"
         "For each topic with concern, set evidence to the resident line reference only "
-        '(e.g. "R1", "R2") — not a quote and not normalized wording.\n\n'
+        '(e.g. "R1", "R2") — not a direct quote.\n\n'
         + format_transcript_for_analyst(transcript)
     )
 
     last_errors: list[str] = []
     for attempt in range(3):
+        record_llm_input(
+            "analyst",
+            system=system,
+            user=user,
+            temperature=0.2,
+            json_mode=True,
+            attempt=attempt + 1,
+        )
         content = await chat_completion(system=system, user=user, temperature=0.2, json_mode=True)
         report = await parse_json_response(content)
         ref_errors = resolve_evidence_refs(report, transcript)
@@ -62,6 +73,14 @@ async def run_analyst(
             + "\n\nFix the JSON. Evidence must be a resident line reference (R1, R2, ...)."
         )
 
+    record_llm_input(
+        "analyst",
+        system=system,
+        user=user,
+        temperature=0.1,
+        json_mode=True,
+        attempt=4,
+    )
     report = await parse_json_response(
         await chat_completion(system=system, user=user, temperature=0.1, json_mode=True)
     )

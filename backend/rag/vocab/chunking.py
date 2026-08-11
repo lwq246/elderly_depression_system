@@ -1,4 +1,4 @@
-"""Build culture vocabulary RAG chunks for companion per-turn retrieval."""
+"""Build culture vocabulary chunk records (for tests/tools — not ingested into Chroma)."""
 
 from __future__ import annotations
 

@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
-from backend.rag.vocab.normalize import normalize_resident_text
+from backend.rag.vocab.retrieve import retrieve_vocabulary_for_companion, vocab_matches_from_hits
 
 from ..analyst import run_analyst
 from ..companion import generate_companion_reply
 from ..db import append_turn, create_session, end_session, get_session, list_sessions, save_report
+from ..llm_capture import capture_enabled_for_request, llm_capture_scope
 from ..models import EntryRequest, MessageRequest, ResidentOut, SessionDetail, SessionSummary
+from ..observability import log_session_event, timed_span
 from ..residents import RESIDENTS, get_resident
 from ..skills import load_greeting
 
@@ -53,6 +55,13 @@ def session_entry(body: EntryRequest):
         room_id=body.room_id,
         opening_message=greeting,
     )
+    log_session_event(
+        "session_entry",
+        session_id=session["id"],
+        resident_id=body.resident_id,
+        locale=locale,
+        turn_count=len(session["transcript"]),
+    )
     return _to_detail(session)
 
 
@@ -65,7 +74,7 @@ def session_get(session_id: str):
 
 
 @router.post("/{session_id}/message", response_model=SessionDetail)
-async def session_message(session_id: str, body: MessageRequest):
+async def session_message(session_id: str, body: MessageRequest, request: Request):
     session = get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -73,27 +82,41 @@ async def session_message(session_id: str, body: MessageRequest):
         raise HTTPException(status_code=400, detail="Session has ended")
 
     resident_text = body.text.strip()
+    vocab_hits = retrieve_vocabulary_for_companion(resident_text, locale=session["locale"])
+    vocab_matches = vocab_matches_from_hits(vocab_hits)
     append_turn(
         session_id,
         "resident",
         resident_text,
-        text_normalized=normalize_resident_text(resident_text, session["locale"]),
+        vocab_matches=vocab_matches,
     )
     session = get_session(session_id)
     assert session
 
-    reply, _warnings = await generate_companion_reply(
-        preferred_name=session["preferred_name"],
-        locale=session["locale"],
-        transcript=session["transcript"],
-    )
+    with llm_capture_scope(session_id, enabled=capture_enabled_for_request(request)):
+        with timed_span("companion_reply", session_id=session_id, locale=session["locale"]) as span:
+            reply, warnings = await generate_companion_reply(
+                preferred_name=session["preferred_name"],
+                locale=session["locale"],
+                transcript=session["transcript"],
+            )
+            span["companion_warning_count"] = len(warnings)
     append_turn(session_id, "companion", reply)
     session = get_session(session_id)
+    log_session_event(
+        "session_message",
+        session_id=session_id,
+        locale=session["locale"],
+        turn_count=len(session["transcript"]),
+        vocab_match_count=len(vocab_matches),
+        companion_warning_count=len(warnings),
+        companion_ms=span.get("duration_ms"),
+    )
     return _to_detail(session)
 
 
 @router.post("/{session_id}/exit", response_model=SessionDetail)
-async def session_exit(session_id: str):
+async def session_exit(session_id: str, request: Request):
     session = get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -102,20 +125,45 @@ async def session_exit(session_id: str):
 
     name = session["preferred_name"] or "there"
     closing = f"Thank you for chatting with me today. Take care, {name}."
-    report, errors = await run_analyst(session["transcript"], locale=session["locale"])
+    with llm_capture_scope(session_id, enabled=capture_enabled_for_request(request)):
+        with timed_span("analyst_run", session_id=session_id, locale=session["locale"]) as span:
+            report, errors = await run_analyst(session["transcript"], locale=session["locale"])
     ended = end_session(session_id, closing_message=closing, report=report, validation_errors=errors)
+    log_session_event(
+        "session_exit",
+        session_id=session_id,
+        locale=session["locale"],
+        turn_count=len(ended["transcript"]),
+        analyst_ms=span.get("duration_ms"),
+        validation_error_count=len(errors),
+        recommendation=(report or {}).get("recommendation"),
+        suicide_risk_flag=(report or {}).get("suicide_risk_flag"),
+        passive_suicidal_thoughts=(report or {}).get("passive_suicidal_thoughts"),
+        active_suicidal_ideation=(report or {}).get("active_suicidal_ideation"),
+    )
     return _to_detail(ended)
 
 
 @router.post("/{session_id}/analyze", response_model=SessionDetail)
-async def session_analyze(session_id: str):
+async def session_analyze(session_id: str, request: Request):
     session = get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    report, errors = await run_analyst(session["transcript"], locale=session["locale"])
+    with llm_capture_scope(session_id, enabled=capture_enabled_for_request(request)):
+        with timed_span("analyst_run", session_id=session_id, locale=session["locale"]) as span:
+            report, errors = await run_analyst(session["transcript"], locale=session["locale"])
     save_report(session_id, report, errors)
     session = get_session(session_id)
+    log_session_event(
+        "session_analyze",
+        session_id=session_id,
+        locale=session["locale"],
+        turn_count=len(session["transcript"]),
+        analyst_ms=span.get("duration_ms"),
+        validation_error_count=len(errors),
+        recommendation=(report or {}).get("recommendation"),
+    )
     return _to_detail(session)
 
 

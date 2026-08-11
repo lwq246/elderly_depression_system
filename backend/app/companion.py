@@ -2,6 +2,7 @@ from typing import Any
 
 from .config import settings
 from .llm import chat_completion, check_companion_output
+from .llm_capture import record_llm_input
 from .skills import load_companion_system_prompt
 
 
@@ -65,8 +66,17 @@ async def generate_companion_reply(
         locale=locale,
         transcript=transcript,
     )
+    turn_index = sum(1 for turn in transcript if turn.get("role") == "resident")
 
     for attempt in range(2):
+        record_llm_input(
+            "companion",
+            system=system,
+            user=user,
+            temperature=0.5,
+            attempt=attempt + 1,
+            turn_index=turn_index,
+        )
         reply = await chat_completion(system=system, user=user, temperature=0.5)
         warnings = check_companion_output(reply)
         if not warnings:

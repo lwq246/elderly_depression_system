@@ -150,6 +150,8 @@ def validate_analyst_report(report: dict[str, Any], transcript: list[dict[str, A
 
 
 def format_transcript_for_analyst(transcript: list[dict[str, Any]]) -> str:
+    from backend.rag.vocab.retrieve import format_vocab_matches_for_analyst
+
     lines = []
     resident_idx = 0
     for turn in transcript:
@@ -158,7 +160,10 @@ def format_transcript_for_analyst(transcript: list[dict[str, Any]]) -> str:
             continue
         resident_idx += 1
         raw = turn["text"]
-        normalized = turn.get("text_normalized") or raw
-        lines.append(f"**Resident [R{resident_idx}]:** {normalized}")
+        block = f"**Resident [R{resident_idx}]:** {raw}"
+        vocab_block = format_vocab_matches_for_analyst(turn.get("vocab_matches") or [])
+        if vocab_block:
+            block += f"\n\n{vocab_block}"
+        lines.append(block)
     return "\n\n".join(lines)
 

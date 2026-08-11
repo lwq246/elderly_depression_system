@@ -76,6 +76,8 @@ class SessionDetail(BaseModel):
 
     validation_errors: list[str]
 
+    llm_inputs: list[dict[str, Any]] = Field(default_factory=list)
+
     created_at: str
 
     ended_at: str | None

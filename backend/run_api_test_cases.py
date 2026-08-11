@@ -17,10 +17,41 @@ import httpx
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from backend.app.config import settings
 from backend.app.validator import REQUIRED_TOPIC_IDS, validate_analyst_report
 
 BASE = os.environ.get("TEST_API_BASE", "http://127.0.0.1:8000")
 TIMEOUT = 180.0
+CAPTURE_HEADERS = {"X-Capture-Llm-Inputs": "true"}
+
+
+def serialize_rag_chunks(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for chunk in chunks:
+        meta = chunk.get("metadata") or {}
+        rows.append(
+            {
+                "section": meta.get("section"),
+                "locale": meta.get("locale"),
+                "source": meta.get("source"),
+                "cosine_similarity": chunk.get("cosine_similarity"),
+                "text": chunk.get("text") or "",
+            }
+        )
+    return rows
+
+
+def build_rag_retrieval_report(result: Any) -> dict[str, Any]:
+    chunks = getattr(result, "chunks", None) or []
+    return {
+        "summary": getattr(result, "summary", None),
+        "summary_failed": bool(getattr(result, "summary_failed", False)),
+        "query": getattr(result, "query", None),
+        "questions": getattr(result, "questions", None) or [],
+        "retrieval_mode": settings.rag_retrieval_mode,
+        "chunk_count": len(chunks),
+        "chunks": serialize_rag_chunks(chunks),
+    }
 
 # Human-readable labels for automated checks.
 CHECK_LABELS: dict[str, str] = {
@@ -405,15 +436,17 @@ def simplify_rag(rag_eval: dict[str, Any]) -> dict[str, Any]:
     if rag_eval.get("skipped"):
         note = rag_eval.get("note") or "not applicable"
         return {"status": "skipped", "message": note}
+
     sections = [s for s in (rag_eval.get("rag_sections") or []) if s]
     locales = rag_eval.get("rag_locales") or []
     locale_note = f" ({', '.join(locales)})" if locales else ""
 
-    base: dict[str, Any] = {}
-    if rag_eval.get("llm_summary"):
-        base["llm_summary"] = rag_eval["llm_summary"]
-    if rag_eval.get("llm_summary_failed"):
-        base["llm_summary_failed"] = True
+    base: dict[str, Any] = {
+        "summary": rag_eval.get("llm_summary"),
+        "summary_failed": rag_eval.get("llm_summary_failed"),
+        "query": rag_eval.get("rag_query"),
+        "chunks": rag_eval.get("rag_chunks") or [],
+    }
 
     if rag_eval.get("pass"):
         if not sections and rag_eval.get("note"):
@@ -437,6 +470,11 @@ def simplify_rag(rag_eval: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def analyst_inputs_from_session(llm_inputs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Test reports: analyst prompts only (not companion or rag_summary)."""
+    return [row for row in llm_inputs if row.get("call") == "analyst"]
+
+
 def build_scenario_output(
     *,
     spec: dict[str, Any],
@@ -446,7 +484,10 @@ def build_scenario_output(
     transcript: list[dict[str, Any]],
     report: dict[str, Any] | None,
     rag_eval: dict[str, Any],
+    llm_inputs: list[dict[str, Any]] | None = None,
+    rag_retrieval: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    analyst_inputs = analyst_inputs_from_session(llm_inputs or [])
     residents = resident_lines(transcript)
     companions = companion_lines(transcript)
     discussed, not_discussed, concerns = topic_lists(report)
@@ -465,6 +506,8 @@ def build_scenario_output(
         "checks": check_results,
         "failures": failures,
         "rag": simplify_rag(rag_eval),
+        "analyst_inputs": analyst_inputs,
+        "rag_retrieval": rag_retrieval or {},
     }
 
     if report:
@@ -487,6 +530,32 @@ def build_scenario_output(
     return output
 
 
+def _md_analyst_inputs_block(analyst_inputs: list[dict[str, Any]]) -> list[str]:
+    if not analyst_inputs:
+        return []
+    lines = ["**Analyst LLM input**", ""]
+    for i, call in enumerate(analyst_inputs, start=1):
+        attempt = call.get("attempt", 1)
+        title = f"### {i}. analyst"
+        if attempt > 1:
+            title += f" (attempt {attempt})"
+        lines.append(title)
+        meta: list[str] = []
+        if call.get("model"):
+            meta.append(f"model `{call['model']}`")
+        if call.get("temperature") is not None:
+            meta.append(f"T={call['temperature']}")
+        if call.get("json_mode"):
+            meta.append("json_mode")
+        if meta:
+            lines.append("- " + ", ".join(meta))
+        for msg in call.get("messages") or []:
+            role = msg.get("role", "?")
+            content = msg.get("content") or ""
+            lines.extend([f"**{role}**", "```", content, "```", ""])
+    return lines
+
+
 def _md_check_line(check: dict[str, Any]) -> str:
     mark = "x" if check.get("pass") else " "
     line = f"- [{mark}] {check.get('name', 'check')}"
@@ -497,25 +566,59 @@ def _md_check_line(check: dict[str, Any]) -> str:
 
 def _md_rag_block(rag: dict[str, Any]) -> list[str]:
     status = rag.get("status", "unknown")
-    lines = [f"**RAG** ({status})"]
+    lines = [f"**RAG checks** ({status})"]
     if status == "skipped":
         lines.append(f"- {rag.get('message', 'skipped')}")
         return lines
-    if rag.get("llm_summary"):
+    if rag.get("message"):
+        lines.append(f"- {rag.get('message')}")
+    if rag.get("sections"):
+        for section in rag["sections"]:
+            lines.append(f"  - section: `{section}`")
+    if rag.get("failures"):
+        for msg in rag["failures"]:
+            lines.append(f"- FAIL: {msg}")
+    return lines
+
+
+def _md_rag_retrieval_block(rag_retrieval: dict[str, Any]) -> list[str]:
+    if not rag_retrieval:
+        return []
+    lines = ["**RAG retrieval**", ""]
+    if rag_retrieval.get("summary_failed"):
+        lines.append("- Summary generation failed — no embedding query run")
+        return lines
+    questions = rag_retrieval.get("questions") or []
+    if questions:
+        lines.extend(["**Policy lookup questions**", ""])
+        for i, q in enumerate(questions, start=1):
+            lines.append(f"{i}. {q}")
         lines.append("")
-        lines.append("**RAG query summary (LLM)**")
-        for line in rag["llm_summary"].splitlines():
+    summary = rag_retrieval.get("summary")
+    if summary and not questions:
+        lines.extend(["**Summary (for embedding query)**", ""])
+        for line in summary.splitlines():
             text = line.strip()
             if text:
                 lines.append(f"> {text}")
-    elif rag.get("llm_summary_failed"):
-        lines.append("- LLM summary failed — no chunks retrieved")
-    if rag.get("sections"):
-        lines.append(f"- {rag.get('message', '')}")
-        for section in rag["sections"]:
-            lines.append(f"  - {section}")
-    elif not rag.get("llm_summary_failed"):
-        lines.append(f"- {rag.get('message', 'no sections')}")
+        lines.append("")
+    query = rag_retrieval.get("query")
+    if query:
+        title = "**Embedding queries**" if questions else "**Embedding query**"
+        lines.extend([title, "```", query, "```", ""])
+    chunks = rag_retrieval.get("chunks") or []
+    lines.append(f"**Retrieved chunks** ({len(chunks)})")
+    lines.append("")
+    if not chunks:
+        lines.append("- (none)")
+        return lines
+    for i, chunk in enumerate(chunks, start=1):
+        section = chunk.get("section") or "unknown"
+        locale = chunk.get("locale") or "?"
+        sim = chunk.get("cosine_similarity")
+        sim_note = f" · sim={sim:.3f}" if isinstance(sim, (int, float)) else ""
+        lines.append(f"### Chunk {i} — `{section}` ({locale}){sim_note}")
+        lines.extend(["```", chunk.get("text") or "", "```", ""])
     return lines
 
 
@@ -532,7 +635,7 @@ def format_results_markdown(results: dict[str, Any]) -> str:
         "|---|---|",
         f"| Model | `{summary.get('model', '-')}` |",
         f"| RAG | {'on' if summary.get('rag_enabled') else 'off'}"
-        f" ({summary.get('rag_chunks', 0)} chunks"
+        f" ({summary.get('rag_retrieval_mode', 'questions')}"
         f"{', LLM summary' if summary.get('rag_use_llm_summary') else ''}) |",
     ]
     if summary.get("generated_at"):
@@ -559,6 +662,27 @@ def format_results_markdown(results: dict[str, Any]) -> str:
             lines.append("**Resident said**")
             for turn in conv["resident_said"]:
                 lines.append(f"> {turn}")
+            lines.append("")
+
+        analyst_inputs = scenario.get("analyst_inputs") or analyst_inputs_from_session(
+            scenario.get("llm_inputs") or []
+        )
+        if analyst_inputs:
+            lines.extend(_md_analyst_inputs_block(analyst_inputs))
+
+        rag_retrieval = scenario.get("rag_retrieval") or {}
+        if not rag_retrieval:
+            rag = scenario.get("rag") or {}
+            if rag.get("summary") or rag.get("chunks"):
+                rag_retrieval = {
+                    "summary": rag.get("summary"),
+                    "summary_failed": rag.get("summary_failed"),
+                    "query": rag.get("query"),
+                    "chunk_count": len(rag.get("chunks") or []),
+                    "chunks": rag.get("chunks") or [],
+                }
+        if rag_retrieval:
+            lines.extend(_md_rag_retrieval_block(rag_retrieval))
             lines.append("")
 
         analyst = scenario.get("analyst")
@@ -627,6 +751,7 @@ def evaluate_rag(
     rag_enabled: bool,
     rag_summary: str | None = None,
     rag_summary_failed: bool = False,
+    rag_query: str | None = None,
 ) -> dict[str, Any]:
     rag_spec = spec.get("rag")
     if not rag_spec:
@@ -641,6 +766,8 @@ def evaluate_rag(
     rag_meta = {
         "llm_summary": rag_summary,
         "llm_summary_failed": rag_summary_failed,
+        "rag_query": rag_query,
+        "rag_chunks": serialize_rag_chunks(chunks),
     }
 
     if rag_spec.get("expect_no_rag"):
@@ -846,13 +973,20 @@ def run_scenario(
     transcript: list[dict[str, Any]] = []
     report: dict[str, Any] | None = None
     rag_eval: dict[str, Any] = {"skipped": True, "pass": True, "failures": []}
+    rag_retrieval: dict[str, Any] = {}
+    llm_inputs: list[dict[str, Any]] = []
     greeting = ""
 
     try:
         body: dict[str, Any] = {"resident_id": resident_id}
         if locale:
             body["locale"] = locale
-        entry = client.post(f"{BASE}/api/sessions/entry", json=body, timeout=TIMEOUT)
+        entry = client.post(
+            f"{BASE}/api/sessions/entry",
+            json=body,
+            headers=CAPTURE_HEADERS,
+            timeout=TIMEOUT,
+        )
         entry.raise_for_status()
         session = entry.json()
         sid = session["id"]
@@ -860,19 +994,29 @@ def run_scenario(
 
         ended = session
         for text in turns:
-            resp = client.post(f"{BASE}/api/sessions/{sid}/message", json={"text": text}, timeout=TIMEOUT)
+            resp = client.post(
+                f"{BASE}/api/sessions/{sid}/message",
+                json={"text": text},
+                headers=CAPTURE_HEADERS,
+                timeout=TIMEOUT,
+            )
             resp.raise_for_status()
             ended = resp.json()
             if ended.get("status") == "ended":
                 break
 
         if auto_exit and ended.get("status") != "ended":
-            resp = client.post(f"{BASE}/api/sessions/{sid}/exit", timeout=TIMEOUT)
+            resp = client.post(
+                f"{BASE}/api/sessions/{sid}/exit",
+                headers=CAPTURE_HEADERS,
+                timeout=TIMEOUT,
+            )
             resp.raise_for_status()
             ended = resp.json()
 
         transcript = ended.get("transcript") or []
         report = ended.get("report")
+        llm_inputs = ended.get("llm_inputs") or []
 
         for check in checks:
             ok, detail = evaluate_check(check, session=ended, greeting=greeting)
@@ -898,13 +1042,16 @@ def run_scenario(
         chunks: list[dict[str, Any]] = []
         rag_summary: str | None = None
         rag_summary_failed = False
-        if rag_enabled and spec.get("rag"):
+        rag_query: str | None = None
+        if rag_enabled:
             from backend.rag.policy.retrieve import retrieve_for_analyst
 
             rag_result = asyncio.run(retrieve_for_analyst(transcript, locale=session_locale))
             chunks = rag_result.chunks
             rag_summary = rag_result.summary
             rag_summary_failed = rag_result.summary_failed
+            rag_query = rag_result.query
+            rag_retrieval = build_rag_retrieval_report(rag_result)
 
         rag_eval = evaluate_rag(
             spec,
@@ -914,6 +1061,7 @@ def run_scenario(
             rag_enabled=rag_enabled,
             rag_summary=rag_summary,
             rag_summary_failed=rag_summary_failed,
+            rag_query=rag_query,
         )
         if not rag_eval.get("skipped") and not rag_eval.get("pass"):
             passed = False
@@ -932,6 +1080,8 @@ def run_scenario(
         transcript=transcript,
         report=report,
         rag_eval=rag_eval,
+        llm_inputs=llm_inputs,
+        rag_retrieval=rag_retrieval,
     )
 
 
@@ -980,6 +1130,7 @@ def main(*, case_ids: list[str] | None = None) -> int:
             "model": health.get("model"),
             "rag_enabled": rag_enabled,
             "rag_use_llm_summary": health.get("rag_use_llm_summary"),
+            "rag_retrieval_mode": health.get("rag_retrieval_mode", "questions"),
             "rag_chunks": health.get("rag_chunks", 0),
             "cases_run": [s["case_id"] for s in scenarios],
             "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),

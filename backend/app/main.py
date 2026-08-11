@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .db import init_db
+from .observability import configure_observability
 from .routes.sessions import residents_router, router as sessions_router
 ## C:\Python314\python.exe -m uvicorn backend.app.main:app --reload --port 8000
 app = FastAPI(
@@ -10,6 +11,8 @@ app = FastAPI(
     description="UWB-triggered screening sessions with companion + analyst pipeline",
     version="0.1.0",
 )
+
+configure_observability(app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,6 +54,8 @@ def health():
         "openrouter_provider": settings.openrouter_provider or None,
         "rag_enabled": settings.rag_enabled,
         "rag_use_llm_summary": settings.rag_use_llm_summary,
+        "rag_retrieval_mode": settings.rag_retrieval_mode,
+        "rag_rerank_enabled": settings.rag_rerank_enabled,
         "rag_chunks": rag_chunks,
         "rag_policy_chunks": rag_policy_chunks,
         "rag_vocab_chunks": rag_vocab_chunks,

@@ -1,9 +1,10 @@
-"""Ingest facility policy and culture vocabulary into Chroma."""
+"""Ingest facility policy into Chroma (culture vocabulary uses local glossary only)."""
 
 from __future__ import annotations
 
 import argparse
 import sys
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,31 +15,27 @@ from backend.rag.embeddings import embed_texts
 from backend.rag.policy.chunking import chunk_markdown, load_skill_sources
 from backend.rag.store import (
     POLICY_COLLECTION_NAME,
-    VOCAB_COLLECTION_NAME,
     delete_all_collections,
+    delete_doc,
     get_client,
     get_policy_collection,
-    get_vocab_collection,
 )
-from backend.rag.vocab.chunking import build_vocabulary_chunks, vocab_embedding_input
+from backend.rag.vocab.data import vocabulary_locales
 
 
-def _embedding_input(chunk: dict) -> str:
-    if "embed_text" in chunk:
-        return vocab_embedding_input(chunk)
-    return chunk["text"]
-
-
-def _upsert_chunks(collection, chunks: list[dict], *, id_offset: int = 0) -> None:
+def _upsert_chunks(collection, chunks: list[dict]) -> None:
     if not chunks:
         return
-    ids = [f"{c['id']}#{id_offset + i}" for i, c in enumerate(chunks)]
+    ingested_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    ids = [c["id"] for c in chunks]
     documents = [c["text"] for c in chunks]
-    metadatas = [c["metadata"] for c in chunks]
+    metadatas = [{**c["metadata"], "ingested_at": ingested_at} for c in chunks]
     batch_size = 16
     for start in range(0, len(chunks), batch_size):
         end = start + batch_size
-        batch_embeddings = embed_texts([_embedding_input(c) for c in chunks[start:end]])
+        batch_embeddings = embed_texts(
+            [c.get("embed_text") or c["text"] for c in chunks[start:end]]
+        )
         collection.upsert(
             ids=ids[start:end],
             documents=documents[start:end],
@@ -47,13 +44,24 @@ def _upsert_chunks(collection, chunks: list[dict], *, id_offset: int = 0) -> Non
         )
 
 
-def ingest_all(*, reset: bool = False) -> int:
+def _doc_version_for(path: Path) -> str:
+    """Version stamp from file mtime — changes when the SOP is edited."""
+    return date.fromtimestamp(path.stat().st_mtime).isoformat()
+
+
+def ingest_all(*, reset: bool = False, doc_ids: list[str] | None = None) -> int:
+    """Ingest facility policy chunks.
+
+    reset: drop and rebuild all collections.
+    doc_ids: if given, only (re)ingest these documents — deletes their existing chunks
+             first, then upserts (incremental/versioned update without a full rebuild).
+    """
     client = get_client()
     if reset:
         delete_all_collections(client)
 
+    policy_collection = get_policy_collection(client)
     policy_chunks: list[dict] = []
-    vocab_chunks: list[dict] = []
 
     for path, meta in load_skill_sources(SKILLS_DIR):
         if not path.is_file():
@@ -63,53 +71,61 @@ def ingest_all(*, reset: bool = False) -> int:
         if locale not in settings.rag_index_locale_list:
             print(f"SKIP {path.name}: locale {locale} not in RAG_INDEX_LOCALES")
             continue
+        doc_id = meta.get("doc_id", path.stem)
+        if doc_ids and doc_id not in doc_ids:
+            continue
         text = path.read_text(encoding="utf-8")
         rel = str(path.relative_to(SKILLS_DIR)).replace("\\", "/")
         chunks = chunk_markdown(
             text,
             source=rel,
             doc_type=meta["doc_type"],
-            locale=meta.get("locale", "all"),
+            locale=locale,
+            doc_id=doc_id,
+            doc_version=_doc_version_for(path),
         )
+        if doc_ids and not reset:
+            # Incremental: clear this doc's old chunks before re-upserting.
+            delete_doc(doc_id, collection=policy_collection)
         policy_chunks.extend(chunks)
         print(f"  {rel}: {len(chunks)} facility policy chunks ({meta['locale']})")
 
-    for locale in settings.rag_vocab_locale_list:
-        locale_chunks = [
-            c
-            for c in build_vocabulary_chunks(locales=[locale])
-        ]
-        vocab_chunks.extend(locale_chunks)
-        print(f"  culture-vocabulary/{locale}: {len(locale_chunks)} vocabulary chunks ({locale})")
+    vocab_locales = vocabulary_locales()
+    print(
+        f"  culture-vocabulary: local glossary only ({', '.join(vocab_locales)} — not ingested)"
+    )
 
-    if not policy_chunks and not vocab_chunks:
-        print("No chunks to ingest.")
+    if not policy_chunks:
+        print("No policy chunks to ingest.")
         return 0
 
-    policy_collection = get_policy_collection(client)
-    vocab_collection = get_vocab_collection(client)
-
-    _upsert_chunks(policy_collection, policy_chunks, id_offset=0)
-    _upsert_chunks(vocab_collection, vocab_chunks, id_offset=1000)
+    _upsert_chunks(policy_collection, policy_chunks)
 
     policy_count = policy_collection.count()
-    vocab_count = vocab_collection.count()
-    total = policy_count + vocab_count
     print(
-        f"Ingested {len(policy_chunks)} policy + {len(vocab_chunks)} vocabulary chunks "
-        f"into '{POLICY_COLLECTION_NAME}' ({policy_count}) and "
-        f"'{VOCAB_COLLECTION_NAME}' ({vocab_count}); {total} total"
+        f"Ingested {len(policy_chunks)} policy chunks into "
+        f"'{POLICY_COLLECTION_NAME}' ({policy_count} total)"
     )
-    return total
+    return policy_count
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Ingest facility policy and vocabulary into Chroma RAG index")
+    parser = argparse.ArgumentParser(description="Ingest facility policy into Chroma RAG index")
     parser.add_argument("--reset", action="store_true", help="Delete and rebuild collections")
+    parser.add_argument(
+        "--doc",
+        action="append",
+        dest="doc_ids",
+        metavar="DOC_ID",
+        help="Incrementally (re)ingest only this doc_id (repeatable); deletes its old chunks first",
+    )
     args = parser.parse_args()
     print(f"Chroma path: {settings.rag_chroma_path}")
-    print(f"Embedding model: {settings.rag_embedding_model}")
-    ingest_all(reset=args.reset)
+    if settings.rag_embedding_backend == "local":
+        print(f"Embedding backend: local ({settings.rag_local_embedding_model})")
+    else:
+        print(f"Embedding backend: api ({settings.rag_embedding_model})")
+    ingest_all(reset=args.reset, doc_ids=args.doc_ids)
 
 
 if __name__ == "__main__":

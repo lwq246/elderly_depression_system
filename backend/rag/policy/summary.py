@@ -6,25 +6,31 @@ from typing import Any
 
 from backend.app.config import settings
 from backend.app.llm import chat_completion
+from backend.app.llm_capture import record_llm_input
 from backend.app.validator import format_transcript_for_analyst
 
-SUMMARY_SYSTEM = """You summarize aged-care wellbeing screening transcripts for facility policy retrieval only.
+SUMMARY_SYSTEM = """You extract facility-policy retrieval tags from aged-care wellbeing screening transcripts.
 
 Rules:
 - Use facts from Resident lines only. Ignore Companion questions unless the resident answered that topic.
-- For each domain below, state what the resident said OR write "not discussed". Do not infer or invent concerns.
-- Do not treat a clear denial (e.g. "No safety thoughts") as a concern.
+- Do not infer or invent concerns. Do not include resident verbatim quotes.
+- Use SOP vocabulary that matches facility policy sections (recommendation, escalation, analyst flags).
+- Clear denial of self-harm (e.g. "No, I do not wish to hurt myself") → passive_suicidal_thoughts: false, active_suicidal_ideation: false, not a concern.
+- Passive thoughts without plan/intent → passive_suicidal_thoughts: true, escalation_pathway: passive_safety.
+- Means, pills, overdose, or current intent → active_suicidal_ideation: true, escalation_pathway: active_safety.
+- If safety was never addressed, set safety_discussed: false and passive/active to not_discussed.
 
-Output 4-7 plain-text lines:
-- Mood/spirits: <resident quote or not discussed>
-- Sleep: <resident quote or not discussed>
-- Appetite/meals: <resident quote or not discussed>
-- Social/activities/energy: <resident quote or not discussed>
-- Passive safety: <quote or none / not discussed>; note plan/intent denial if stated
-- Active safety: <quote or none / not discussed> (intent, plan, means, pills, overdose)
-- Likely follow-up level: none, check_in, visit_soon, or urgent (based only on resident evidence above)
-
-No diagnosis. No markdown bullets. No JSON."""
+Output exactly these lines (plain text, no markdown, no JSON):
+recommendation_target: none | check_in | visit_soon | urgent
+passive_suicidal_thoughts: true | false | not_discussed
+active_suicidal_ideation: true | false | not_discussed
+suicide_risk_flag: true | false
+escalation_pathway: routine | domain_follow_up | passive_safety | active_safety
+safety_discussed: true | false
+domains_with_concern: none | mood, sleep, appetite, social, energy, worries (comma-separated)
+domains_discussed: none | mood, sleep, appetite, social, energy, safety, worries (comma-separated)
+screen_positive_pattern: true | false
+safety_note: one short SOP-style phrase (no quotes from resident)"""
 
 
 async def summarize_transcript_for_rag(
@@ -34,9 +40,15 @@ async def summarize_transcript_for_rag(
 ) -> str:
     user = (
         f"Locale: {locale}\n\n"
-        "Summarize for facility SOP retrieval. Only include domains the resident explicitly "
-        "addressed; write not discussed for all others.\n\n"
+        "Extract policy retrieval tags for facility SOP embedding search. "
+        "Use SOP terms only — no resident quotes.\n\n"
         + format_transcript_for_analyst(transcript)
+    )
+    record_llm_input(
+        "rag_summary",
+        system=SUMMARY_SYSTEM,
+        user=user,
+        temperature=0.1,
     )
     content = await chat_completion(
         system=SUMMARY_SYSTEM,

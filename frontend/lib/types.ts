@@ -8,8 +8,8 @@ export interface Resident {
 export interface TranscriptTurn {
   role: "companion" | "resident";
   text: string;
-  /** Culture terms replaced with general meanings; resident turns only. */
-  text_normalized?: string;
+  /** Glossary term/meaning pairs matched on this resident turn (for analyst). */
+  vocab_matches?: Array<{ term: string; meaning: string }>;
   at: string;
 }
 
@@ -48,6 +48,15 @@ export interface Session {
   transcript: TranscriptTurn[];
   report: AnalystReport | null;
   validation_errors: string[];
+  llm_inputs?: Array<{
+    call: string;
+    attempt?: number;
+    turn_index?: number;
+    model?: string;
+    temperature?: number;
+    json_mode?: boolean;
+    messages: Array<{ role: string; content: string }>;
+  }>;
   created_at: string;
   ended_at: string | null;
 }

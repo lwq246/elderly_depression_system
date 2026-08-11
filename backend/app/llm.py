@@ -5,6 +5,7 @@ from typing import Any
 import httpx
 
 from .config import settings
+from .observability import log_session_event, timed_span
 
 FORBIDDEN_COMPANION_PATTERNS = [
     r"\bdepress(?:ion|ed)\b",
@@ -74,14 +75,23 @@ async def chat_completion(
         headers["HTTP-Referer"] = settings.openrouter_site_url
     if settings.openrouter_app_name:
         headers["X-Title"] = settings.openrouter_app_name
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        response = await client.post(
-            f"{settings.openai_base_url.rstrip('/')}/chat/completions",
-            headers=headers,
-            json=payload,
+    with timed_span("llm_chat_completion", model=settings.openai_model, json_mode=json_mode) as span:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(
+                f"{settings.openai_base_url.rstrip('/')}/chat/completions",
+                headers=headers,
+                json=payload,
+            )
+            span["status_code"] = response.status_code
+            response.raise_for_status()
+            data = response.json()
+        log_session_event(
+            "llm_chat_completion",
+            model=settings.openai_model,
+            json_mode=json_mode,
+            status_code=span.get("status_code"),
+            duration_ms=span.get("duration_ms"),
         )
-        response.raise_for_status()
-        data = response.json()
     return data["choices"][0]["message"]["content"].strip()
 
 

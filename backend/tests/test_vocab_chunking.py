@@ -9,6 +9,7 @@ class TestVocabChunking(unittest.TestCase):
         chunks = chunk_local_vocabulary(source="culture-vocabulary/en-SG", locale="en-SG")
         for chunk in chunks:
             self.assertIn("term", chunk.get("metadata") or {})
+        self.assertGreaterEqual(len(chunks), 50)
 
     def test_chunk_sg_vocabulary_has_sian_term(self):
         chunks = chunk_local_vocabulary(source="culture-vocabulary/en-SG", locale="en-SG")
@@ -24,8 +25,8 @@ class TestVocabChunking(unittest.TestCase):
         heaty = next(c for c in chunks if (c.get("metadata") or {}).get("term") == "heaty")
         self.assertEqual(heaty["text"], "unwell")
 
-        no_energy = next(c for c in chunks if (c.get("metadata") or {}).get("term") == "no energy")
-        self.assertEqual(no_energy["text"], "fatigue")
+        no_strength = next(c for c in chunks if (c.get("metadata") or {}).get("term") == "no strength")
+        self.assertEqual(no_strength["text"], "fatigue")
 
     def test_chunk_au_vocabulary_has_crook(self):
         chunks = chunk_local_vocabulary(source="culture-vocabulary/en-AU", locale="en-AU")
@@ -33,7 +34,7 @@ class TestVocabChunking(unittest.TestCase):
         self.assertIn("crook", terms)
         self.assertIn("bit blue", terms)
         self.assertIn("doing it tough", terms)
-        self.assertGreaterEqual(len(chunks), 30)
+        self.assertGreaterEqual(len(chunks), 50)
         crook = next(c for c in chunks if (c.get("metadata") or {}).get("term") == "crook")
         self.assertEqual(crook["text"], "unwell")
 

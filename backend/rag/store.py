@@ -42,6 +42,12 @@ def get_collection_for_type(doc_type: str):
     raise ValueError(f"Unknown doc_type: {doc_type}")
 
 
+def delete_doc(doc_id: str, *, collection=None) -> None:
+    """Delete all chunks for a document id (incremental/versioned re-ingest)."""
+    collection = collection or get_policy_collection()
+    collection.delete(where={"doc_id": doc_id})
+
+
 def delete_all_collections(client: chromadb.PersistentClient | None = None) -> None:
     client = client or get_client()
     for name in (

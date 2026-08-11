@@ -32,6 +32,14 @@ def _drop_legacy_speech_register_column(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE sessions DROP COLUMN speech_register")
 
 
+def _ensure_llm_inputs_column(conn: sqlite3.Connection) -> None:
+    cols = [row[1] for row in conn.execute("PRAGMA table_info(sessions)").fetchall()]
+    if "llm_inputs_json" not in cols:
+        conn.execute(
+            "ALTER TABLE sessions ADD COLUMN llm_inputs_json TEXT NOT NULL DEFAULT '[]'"
+        )
+
+
 def init_db() -> None:
 
     with get_conn() as conn:
@@ -71,6 +79,7 @@ def init_db() -> None:
         )
 
         _drop_legacy_speech_register_column(conn)
+        _ensure_llm_inputs_column(conn)
 
 
 
@@ -199,7 +208,7 @@ def append_turn(
     role: str,
     text: str,
     *,
-    text_normalized: str | None = None,
+    vocab_matches: list[dict[str, str]] | None = None,
 ) -> dict[str, Any] | None:
 
     session = get_session(session_id)
@@ -211,8 +220,8 @@ def append_turn(
     transcript = session["transcript"]
 
     turn: dict[str, Any] = {"role": role, "text": text, "at": _utc_now()}
-    if text_normalized is not None:
-        turn["text_normalized"] = text_normalized
+    if vocab_matches:
+        turn["vocab_matches"] = vocab_matches
     transcript.append(turn)
 
     with get_conn() as conn:
@@ -230,6 +239,19 @@ def append_turn(
 
 
 
+
+
+def append_llm_input(session_id: str, record: dict[str, Any]) -> None:
+    session = get_session(session_id)
+    if not session:
+        return
+    inputs = list(session.get("llm_inputs") or [])
+    inputs.append(record)
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE sessions SET llm_inputs_json = ? WHERE id = ?",
+            (json.dumps(inputs), session_id),
+        )
 
 def end_session(
 
@@ -326,6 +348,8 @@ def save_report(session_id: str, report: dict[str, Any], validation_errors: list
 
 
 def _row_to_session(row: sqlite3.Row) -> dict[str, Any]:
+    keys = row.keys()
+    llm_inputs_raw = row["llm_inputs_json"] if "llm_inputs_json" in keys else "[]"
 
     return {
 
@@ -350,6 +374,8 @@ def _row_to_session(row: sqlite3.Row) -> dict[str, Any]:
         if row["validation_errors_json"]
 
         else [],
+
+        "llm_inputs": json.loads(llm_inputs_raw) if llm_inputs_raw else [],
 
         "created_at": row["created_at"],
 

@@ -1,4 +1,4 @@
-"""Synthetic cases for live culture-vocabulary retrieval (Chroma + embeddings).
+"""Synthetic cases for culture-vocabulary retrieval (local glossary + literal match).
 
 Run (from repo root):
   C:/Python314/python.exe backend/tests/vocab_retrieval_cases.py
@@ -6,7 +6,7 @@ Run (from repo root):
 Or:
   scripts\\run-vocab-retrieval-tests.cmd
 
-Requires: ingest first, OPENAI_API_KEY in .env
+No Chroma ingest required for vocabulary.
 """
 
 from __future__ import annotations
@@ -24,10 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from backend.rag.vocab.retrieve import (
-    retrieve_vocabulary_chroma_hits,
-    retrieve_vocabulary_for_companion,
-)
+from backend.rag.vocab.retrieve import retrieve_vocabulary_for_companion
 
 DEFAULT_REPORT_DIR = ROOT / "data" / "test-results"
 
@@ -64,51 +61,50 @@ VOCAB_RETRIEVAL_CASES: list[VocabRetrievalCase] = [
         "SG-01",
         "en-SG",
         "Very sian lately, no strength at all.",
-        must_include=("sian", "no strength"),
+        must_include=("very sian", "no strength at all"),
     ),
     VocabRetrievalCase(
         "SG-02",
         "en-SG",
         "Cannot sleep also, sleep very poor.",
-        must_include=("cannot sleep", "sleep very poor"),
+        must_include=("cannot sleep also", "sleep very poor"),
     ),
     VocabRetrievalCase(
         "SG-03",
         "en-SG",
-        "My heart very heavy, very worried about my children.",
-        must_include=("heart very heavy", "worried"),
+        "My heart very heavy, sim kua about my children.",
+        must_include=("heart very heavy", "sim kua"),
     ),
     VocabRetrievalCase(
         "SG-04",
         "en-SG",
         "Everything buay tahan lately, very sian.",
-        must_include=("buay tahan", "sian"),
+        must_include=("buay tahan", "very sian"),
     ),
     VocabRetrievalCase(
         "SG-05",
         "en-SG",
-        "Don't feel like eating, no appetite.",
-        must_include=("don't feel like eating", "no appetite"),
+        "Food no taste lah, jiak buay liao for many days.",
+        must_include=("food no taste", "jiak buay liao"),
     ),
     VocabRetrievalCase(
         "SG-06",
         "en-SG",
         "I feel breathless when I walk, a bit panting.",
-        must_include=("breathless", "panting"),
+        must_include=("feel breathless", "panting"),
     ),
     VocabRetrievalCase(
         "AU-01",
         "en-AU",
         "Been feeling a bit crook and flat this week.",
-        must_include=(),
-        note="crook/flat in text but outside chroma top-k — expect empty retrieved",
+        must_include=("a bit crook", "flat"),
+        note="literal match — both terms in message",
     ),
     VocabRetrievalCase(
         "AU-01b",
         "en-AU",
         "Feel crook today, been knackered all week.",
-        must_include=("crook", "knackered"),
-        note="short message — terms rank in chroma top-k",
+        must_include=("feel crook", "knackered"),
     ),
     VocabRetrievalCase(
         "AU-02",
@@ -137,8 +133,8 @@ VOCAB_RETRIEVAL_CASES: list[VocabRetrievalCase] = [
     VocabRetrievalCase(
         "AU-06",
         "en-AU",
-        "Feeling a bit lonely, doing it tough lately.",
-        must_include=("lonely", "doing it tough"),
+        "Doing it tough lately, been a bit crook.",
+        must_include=("doing it tough", "a bit crook"),
     ),
     VocabRetrievalCase(
         "NEG-01",
@@ -166,12 +162,12 @@ VOCAB_RETRIEVAL_CASES: list[VocabRetrievalCase] = [
             "Everything buay tahan lately, very sian."
         ),
         must_include=(
-            "cannot sleep",
+            "cannot sleep also",
             "sleep very poor",
             "no strength",
             "heart very heavy",
             "buay tahan",
-            "sian",
+            "very sian",
         ),
         note="long SG ramble with 6 culture terms",
     ),
@@ -179,18 +175,18 @@ VOCAB_RETRIEVAL_CASES: list[VocabRetrievalCase] = [
         "LONG-SG-02",
         "en-SG",
         (
-            "The nurse asked me how I am. I said okay lah but actually don't feel like eating "
-            "for many days already, no appetite at all. Also very worried about money and "
-            "medication, a bit breathless when I walk to the toilet, panting after that."
+            "The nurse asked me how I am. I said okay lah but actually no appetite at all "
+            "for many days already, food no taste. A bit breathless when I walk to the toilet, "
+            "panting after that."
         ),
         must_include=(
-            "don't feel like eating",
-            "no appetite",
-            "worried",
+            "okay lah",
+            "no appetite at all",
+            "food no taste",
             "breathless",
             "panting",
         ),
-        note="long SG with appetite + anxiety + breath terms",
+        note="long SG with appetite + breath culture terms",
     ),
     VocabRetrievalCase(
         "LONG-AU-01",
@@ -208,8 +204,10 @@ VOCAB_RETRIEVAL_CASES: list[VocabRetrievalCase] = [
             "not sleeping",
             "a bit quiet",
             "doing it tough",
+            "a bit flat",
+            "a bit crook",
         ),
-        note="long AU ramble — chroma top-k; keeping to yourself/flat/crook rank outside top-10",
+        note="long AU ramble — all culture terms in text should match",
     ),
     VocabRetrievalCase(
         "LONG-NEG-01",
@@ -223,6 +221,13 @@ VOCAB_RETRIEVAL_CASES: list[VocabRetrievalCase] = [
         must_exclude=("crook", "flat", "knackered", "crappy sleep", "doing it tough"),
         note="long generic English — should not retrieve culture terms",
     ),
+    VocabRetrievalCase(
+        "LONG-NEG-02",
+        "en-SG",
+        "I feel very worried and tired lately, quite lonely.",
+        must_exclude=("sian", "buay tahan", "heart very heavy"),
+        note="generic English in SG session — no culture-core hits",
+    ),
 ]
 
 
@@ -230,23 +235,18 @@ def _rows_to_dicts(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for row in rows:
         meta = row.get("metadata") or {}
-        sim = row.get("cosine_similarity")
         out.append(
             {
                 "term": meta.get("term", ""),
                 "meaning": row.get("text", ""),
-                "cosine_similarity": round(sim, 4) if sim is not None else None,
                 "locale": meta.get("locale", ""),
             }
         )
     return out
 
 
-def _format_retrieved_line(row: dict[str, Any]) -> str:
-    sim = row.get("cosine_similarity")
-    if sim is not None:
-        return f"{row['term']} -> {row['meaning']}  (cosine_sim={sim:.4f})"
-    return f"{row['term']} -> {row['meaning']}  (cosine_sim=n/a)"
+def _format_match_line(row: dict[str, Any]) -> str:
+    return f"{row['term']} -> {row['meaning']}"
 
 
 def _format_elapsed(seconds: float) -> str:
@@ -262,7 +262,6 @@ def run_vocab_retrieval_cases(
     structured: list[dict[str, Any]] = []
     for case in cases or VOCAB_RETRIEVAL_CASES:
         started = time.perf_counter()
-        chroma_hits = retrieve_vocabulary_chroma_hits(case.text, locale=case.locale)
         rows = retrieve_vocabulary_for_companion(case.text, locale=case.locale)
         ok, detail = case.evaluate(rows)
         elapsed_s = time.perf_counter() - started
@@ -278,8 +277,7 @@ def run_vocab_retrieval_cases(
                 "check": detail,
                 "elapsed_s": round(elapsed_s, 4),
                 "elapsed": _format_elapsed(elapsed_s),
-                "chroma_hits": _rows_to_dicts(chroma_hits),
-                "retrieved": _rows_to_dicts(rows),
+                "matches": _rows_to_dicts(rows),
             }
         )
     return structured
@@ -300,20 +298,13 @@ def print_results(results: list[dict[str, Any]]) -> None:
             print(f"  expect include: {r['must_include']}")
         if r["must_exclude"]:
             print(f"  expect exclude: {r['must_exclude']}")
-        chroma = r.get("chroma_hits") or []
-        if chroma:
-            print("  chroma (top-k from vector DB):")
-            for i, row in enumerate(chroma, start=1):
-                print(f"    {i}. {_format_retrieved_line(row)}")
+        matches = r.get("matches") or []
+        if matches:
+            print("  matches:")
+            for i, row in enumerate(matches, start=1):
+                print(f"    {i}. {_format_match_line(row)}")
         else:
-            print("  chroma (top-k from vector DB): (none)")
-        retrieved = r["retrieved"]
-        if retrieved:
-            print("  retrieved (after literal filter):")
-            for i, row in enumerate(retrieved, start=1):
-                print(f"    {i}. {_format_retrieved_line(row)}")
-        else:
-            print("  retrieved (after literal filter): (none)")
+            print("  matches: (none)")
         print(f"  check: {r['check']}")
         print("-" * 72)
     print(f"\nSUMMARY: {passed}/{len(results)} passed in {_format_elapsed(total_s)}")
@@ -342,33 +333,15 @@ def write_markdown_report(results: list[dict[str, Any]], path: Path) -> None:
         if r["must_exclude"]:
             lines.append(f"**Must exclude:** {', '.join(r['must_exclude'])}")
         lines.append("")
-        lines.append("**Chroma (top-k from vector DB):**")
+        lines.append("**Matches:**")
         lines.append("")
-        lines.append("| # | term | meaning | cosine_sim |")
-        lines.append("|---|------|---------|------------|")
-        if r.get("chroma_hits"):
-            for i, row in enumerate(r["chroma_hits"], start=1):
-                sim = row.get("cosine_similarity")
-                lines.append(
-                    f"| {i} | {row['term']} | {row['meaning']} | "
-                    f"{sim if sim is not None else ''} |"
-                )
+        lines.append("| # | term | meaning |")
+        lines.append("|---|------|---------|")
+        if r.get("matches"):
+            for i, row in enumerate(r["matches"], start=1):
+                lines.append(f"| {i} | {row['term']} | {row['meaning']} |")
         else:
-            lines.append("| - | *(none)* | | |")
-        lines.append("")
-        lines.append("**Retrieved (after literal filter):**")
-        lines.append("")
-        lines.append("| # | term | meaning | cosine_sim |")
-        lines.append("|---|------|---------|------------|")
-        if r["retrieved"]:
-            for i, row in enumerate(r["retrieved"], start=1):
-                sim = row.get("cosine_similarity")
-                lines.append(
-                    f"| {i} | {row['term']} | {row['meaning']} | "
-                    f"{sim if sim is not None else ''} |"
-                )
-        else:
-            lines.append("| - | *(none)* | | |")
+            lines.append("| - | *(none)* | |")
         lines.append("")
         lines.append(f"**Check:** {r['check']}")
         lines.append("")
@@ -403,7 +376,7 @@ def _select_cases(case_ids: list[str] | None) -> list[VocabRetrievalCase]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run synthetic culture-vocab retrieval cases against live Chroma index",
+        description="Run synthetic culture-vocab retrieval cases (local glossary literal match)",
     )
     parser.add_argument(
         "--case",
@@ -422,17 +395,6 @@ def main() -> int:
         help="Directory for vocab-retrieval-report.md and .json (default: data/test-results)",
     )
     args = parser.parse_args()
-
-    from backend.app.config import settings
-    from backend.rag.store import get_vocab_collection
-
-    if not settings.openai_api_key:
-        print("ERROR: OPENAI_API_KEY required for embeddings (set in .env)")
-        return 2
-    if get_vocab_collection().count() == 0:
-        print("ERROR: vocab index empty. Run first:")
-        print("  C:/Python314/python.exe backend/rag/ingest.py --reset")
-        return 2
 
     cases = _select_cases(args.case)
     results = run_vocab_retrieval_cases(cases)
