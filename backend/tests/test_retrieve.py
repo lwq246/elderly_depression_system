@@ -1,7 +1,7 @@
 import unittest
 
-
-
+from backend.app.skills import load_companion_system_prompt
+from backend.rag.vocab.normalize import normalize_resident_text
 from backend.rag.vocab.retrieve import (
 
     _term_in_resident_text,
@@ -96,6 +96,50 @@ class TestRetrieveVocabularyLiteral(unittest.TestCase):
         self.assertNotIn("crook", terms)
 
 
+class TestBoundaryFalsePositives(unittest.TestCase):
+    """Word-boundary matching must not fire on terms embedded inside larger words."""
+
+    def _terms(self, text: str, locale: str) -> set[str]:
+        rows = retrieve_vocabulary_for_companion(text, locale=locale, top_k=20)
+        return {(r.get("metadata") or {}).get("term") for r in rows}
+
+    def test_sian_not_matched_inside_asian(self):
+        self.assertNotIn("sian", self._terms("My daughter married an Asian man", "en-SG"))
+
+    def test_wind_not_matched_inside_window(self):
+        self.assertNotIn("wind", self._terms("Please open the window", "en-SG"))
+
+    def test_loya_not_matched_inside_loyal(self):
+        self.assertNotIn("loya", self._terms("He is a loyal friend", "en-SG"))
+
+    def test_diam_not_matched_inside_diamond(self):
+        self.assertNotIn("diam", self._terms("She lost her diamond ring", "en-SG"))
+
+    def test_standalone_term_still_matches(self):
+        self.assertIn("sian", self._terms("I feel sian today", "en-SG"))
+        self.assertIn("wind", self._terms("Too much wind today", "en-SG"))
+
+    def test_normalize_does_not_touch_embedded_word(self):
+        self.assertEqual(
+            normalize_resident_text("She lost her diamond ring", "en-SG"),
+            "She lost her diamond ring",
+        )
+        self.assertIn("withdrawal", normalize_resident_text("He keep diam only", "en-SG").lower())
+
+
+class TestCompanionPromptVocab(unittest.TestCase):
+    def test_companion_prompt_without_static_vocab(self):
+        prompt = load_companion_system_prompt("en-SG")
+        self.assertNotIn("## Local vocabulary reference", prompt)
+        self.assertNotIn("## Retrieved local vocabulary (this turn)", prompt)
+
+    def test_companion_prompt_with_rag_context(self):
+        prompt = load_companion_system_prompt(
+            "en-SG",
+            vocabulary_context="### Vocabulary 1 — sian\nsian → low mood",
+        )
+        self.assertIn("Retrieved local vocabulary", prompt)
+        self.assertIn("sian", prompt)
 
 
 

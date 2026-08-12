@@ -57,7 +57,7 @@ Each `##` section may include an HTML comment before the heading:
 | `active_safety` | Active ideation / means / crisis |
 | `reference` | Governance prose — set `retrievable: false` to skip RAG |
 
-Template: `backend/rag/policy/template.md`
+Reformat a raw policy with `backend/rag/convert_policy.py convert` — a content-preserving pass that adds these directives and is checked for content loss (`check_conversion_coverage`).
 
 ## Files
 

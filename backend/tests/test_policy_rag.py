@@ -12,11 +12,11 @@ from backend.rag.policy.routing import (
     PATHWAY_ROUTINE,
     parse_policy_summary,
     pathways_for_summary,
-    pathways_from_transcript_heuristic,
     section_pathway,
 )
 from backend.rag.policy.embed_text import build_embed_text
-from backend.rag.policy.questions import parse_policy_questions
+from backend.rag.policy.summary import SUMMARY_SYSTEM
+from backend.rag.policy.convert import check_conversion_coverage
 
 
 class TestSectionMeta(unittest.TestCase):
@@ -257,18 +257,29 @@ escalation_pathway: passive_safety"""
         )
         self.assertEqual(pathways_for_summary(tags), [PATHWAY_PASSIVE, PATHWAY_ROUTINE])
 
-    def test_heuristic_denial_routes_routine(self):
-        transcript = [
-            {"role": "resident", "text": "No, I do not wish to hurt myself."},
-        ]
-        self.assertEqual(
-            pathways_from_transcript_heuristic(transcript),
-            [PATHWAY_ROUTINE, PATHWAY_DOMAIN],
-        )
-
     def test_section_pathway_mapping(self):
         self.assertEqual(section_pathway("Passive safety escalation"), PATHWAY_PASSIVE)
         self.assertEqual(section_pathway("Scope and use"), "reference")
+
+    def test_screen_positive_pattern_routes_domain(self):
+        tags = parse_policy_summary(
+            """recommendation_target: none
+passive_suicidal_thoughts: false
+active_suicidal_ideation: false
+escalation_pathway: routine
+screen_positive_pattern: true"""
+        )
+        self.assertEqual(pathways_for_summary(tags), [PATHWAY_DOMAIN, PATHWAY_ROUTINE])
+
+    def test_screen_positive_pattern_does_not_override_active_safety(self):
+        tags = parse_policy_summary(
+            """recommendation_target: urgent
+passive_suicidal_thoughts: false
+active_suicidal_ideation: true
+escalation_pathway: active_safety
+screen_positive_pattern: true"""
+        )
+        self.assertEqual(pathways_for_summary(tags), [PATHWAY_ACTIVE])
 
 
 class TestSafetyGuaranteeInclude(unittest.TestCase):
@@ -321,9 +332,7 @@ class TestSafetyGuaranteeInclude(unittest.TestCase):
 
         with patch.object(retrieve_mod, "query_collection", fake_query_collection), patch.object(
             retrieve_mod, "embed_texts", lambda texts: [[0.0]]
-        ), patch.object(retrieve_mod, "summarize_transcript_for_rag", fake_summary), patch.object(
-            retrieve_mod, "rerank_rows", lambda q, rows, top_k=None: rows if top_k is None else rows[:top_k]
-        ):
+        ), patch.object(retrieve_mod, "summarize_transcript_for_rag", fake_summary):
             result = asyncio.run(
                 retrieve_mod._retrieve_by_tags(
                     [{"role": "resident", "text": "I sometimes wish I wouldn't wake up."}],
@@ -336,26 +345,103 @@ class TestSafetyGuaranteeInclude(unittest.TestCase):
         self.assertIn("Active safety escalation", sections)
         self.assertIn("Passive safety escalation", sections)
 
+    def test_transcript_backstop_forces_safety_when_summary_undertags(self):
+        """Explicit crisis language in the transcript force-includes safety sections,
+        even when the LLM summary tags no safety pathway at all (under-tagging)."""
+        from backend.rag.policy import retrieve as retrieve_mod
 
-class TestPolicyQuestions(unittest.TestCase):
-    def test_parse_numbered_questions(self):
-        text = (
-            "1. What is the routine follow-up SOP when recommendation is none?\n"
-            "2. How should passive safety escalation be handled?\n"
-        )
-        self.assertEqual(
-            parse_policy_questions(text, max_questions=4),
-            [
-                "What is the routine follow-up SOP when recommendation is none?",
-                "How should passive safety escalation be handled?",
-            ],
+        # Summary tags ROUTINE only — the LLM missed the disclosure entirely.
+        routine_summary = (
+            "escalation_pathway: routine\n"
+            "passive_suicidal_thoughts: false\n"
+            "active_suicidal_ideation: false\n"
+            "recommendation_target: routine_followup\n"
         )
 
-    def test_parse_bulleted_questions(self):
-        text = "- Documentation requirements after screening\n- Domain follow-up for poor sleep"
-        qs = parse_policy_questions(text, max_questions=4)
-        self.assertEqual(len(qs), 2)
-        self.assertIn("Documentation requirements", qs[0])
+        def fake_query_collection(query, *, pathways=None, **kwargs):
+            def row(section, pathway, sim):
+                return {
+                    "text": f"{section} body",
+                    "metadata": {
+                        "section": section,
+                        "pathway": pathway,
+                        "parent_id": f"en-AU:{section}",
+                        "locale": "en-AU",
+                    },
+                    "cosine_similarity": sim,
+                }
+
+            if pathways and PATHWAY_ACTIVE in pathways:
+                return [
+                    row("Passive safety escalation", PATHWAY_PASSIVE, 0.4),
+                    row("Active safety escalation", PATHWAY_ACTIVE, 0.35),
+                ]
+            return [
+                row("Routine follow-up actions", PATHWAY_ROUTINE, 0.9),
+                row("Domain-led follow-up (non-crisis)", PATHWAY_DOMAIN, 0.8),
+            ]
+
+        class _Coll:
+            def count(self):
+                return 10
+
+        async def fake_summary(transcript, *, locale):
+            return routine_summary
+
+        with patch.object(retrieve_mod, "query_collection", fake_query_collection), patch.object(
+            retrieve_mod, "embed_texts", lambda texts: [[0.0]]
+        ), patch.object(retrieve_mod, "summarize_transcript_for_rag", fake_summary):
+            result = asyncio.run(
+                retrieve_mod._retrieve_by_tags(
+                    [{"role": "resident", "text": "Honestly I just want it all to stop."}],
+                    locale="en-AU",
+                    collection=_Coll(),
+                )
+            )
+
+        sections = {c["metadata"]["section"] for c in result.chunks}
+        self.assertIn("Active safety escalation", sections)
+        self.assertIn("Passive safety escalation", sections)
+
+
+class TestConversionCoverage(unittest.TestCase):
+    _SOURCE = (
+        "Notify duty nurse within 15 minutes. Call 995 if imminent danger. "
+        "Re-screen within 24 hours. IMH crisis line 6389 2222."
+    )
+
+    def test_reformat_preserving_content_passes(self):
+        reformatted = (
+            "# Facility SOP\nLocale: en-SG\n\n"
+            "<!-- pathway: active_safety | retrievable: true -->\n"
+            "## Escalation\n\n"
+            "Notify duty nurse within 15 minutes. Call 995 if imminent danger.\n\n"
+            "Re-screen within 24 hours. IMH crisis line 6389 2222.\n"
+        )
+        result = check_conversion_coverage(self._SOURCE, reformatted)
+        self.assertTrue(result.ok, result.errors)
+        self.assertEqual(result.missing_numbers, [])
+
+    def test_dropped_content_fails_on_ratio(self):
+        summarized = "## Escalation\nNotify nurse and call 995. Re-screen 24h. 6389 2222 15."
+        result = check_conversion_coverage(self._SOURCE, summarized)
+        self.assertFalse(result.ok)
+
+    def test_missing_number_is_flagged(self):
+        # Same length-ish text but the 15-minute timeframe and phone are gone.
+        no_numbers = (
+            "# Facility SOP\nLocale: en-SG\n\n## Escalation\n\n"
+            "Notify duty nurse within some minutes. Call emergency services if imminent "
+            "danger to life occurs. Re-screen within twenty four hours as required here."
+        )
+        result = check_conversion_coverage(self._SOURCE, no_numbers)
+        self.assertIn("6389 2222".replace(" ", ""), result.missing_numbers)
+
+
+class TestSummaryContract(unittest.TestCase):
+    def test_prompt_requests_retrieval_focus_line(self):
+        self.assertIn("retrieval_focus:", SUMMARY_SYSTEM)
+        self.assertIn("screen_positive_pattern:", SUMMARY_SYSTEM)
 
 
 if __name__ == "__main__":

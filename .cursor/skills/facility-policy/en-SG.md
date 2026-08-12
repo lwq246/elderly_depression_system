@@ -1,13 +1,16 @@
 # Facility screening SOP — Singapore (en-SG)
+Locale: en-SG
 
 Operational policy for staff after AI-assisted wellbeing screening. **Configure** contact names, times, and systems for your site before production use.
 
+<!-- pathway: reference | retrievable: true -->
 ## Scope and use
 
 - Applies to screening room sessions triggered by UWB band entry.
 - AI output is **screening support only** — nurses and clinicians decide care.
 - Use this SOP to map analyst `recommendation` levels to **facility actions**, not as a diagnosis.
 
+<!-- pathway: routine | retrievable: true -->
 ## Routine follow-up actions
 
 | Analyst `recommendation` | Facility action | Target timeframe |
@@ -19,6 +22,7 @@ Operational policy for staff after AI-assisted wellbeing screening. **Configure*
 
 Screen-positive pattern (5+ concern domains with evidence): treat as minimum **`visit_soon`** even if passive safety only.
 
+<!-- pathway: passive_safety | retrievable: true -->
 ## Passive safety escalation
 
 **Triggers:** passive suicidal thoughts (e.g. wish not to wake, better off dead) **without** current plan, intent, or means.
@@ -33,6 +37,7 @@ Screen-positive pattern (5+ concern domains with evidence): treat as minimum **`
 
 Minimum analyst mapping: `recommendation` **`visit_soon`** or higher.
 
+<!-- pathway: active_safety | retrievable: true -->
 ## Active safety escalation
 
 **Triggers:** current intent, plan, means, or imminent risk (pills, overdose, hurt/kill self, etc.).
@@ -48,6 +53,7 @@ Minimum analyst mapping: `recommendation` **`visit_soon`** or higher.
 
 Minimum analyst mapping: `recommendation` **`urgent`**.
 
+<!-- pathway: active_safety | retrievable: true -->
 ## Crisis contacts (staff reference)
 
 **Do not read aloud to residents** unless your site SOP explicitly requires it during handoff.
@@ -60,6 +66,7 @@ Minimum analyst mapping: `recommendation` **`urgent`**.
 
 Replace with your facility’s approved contact list and on-call roster.
 
+<!-- pathway: reference | retrievable: true -->
 ## Documentation and handoff
 
 - Log screening session ID, resident ID, end time, and analyst `recommendation` in the care record.

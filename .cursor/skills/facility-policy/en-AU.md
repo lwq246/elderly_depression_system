@@ -1,7 +1,9 @@
 # Facility screening SOP — Australia (en-AU)
+Locale: en-AU
 
 Operational policy for staff after AI-assisted wellbeing screening in residential aged care (RACF). **Configure** contact names, times, escalation trees, and care-record field names for your site before production use.
 
+<!-- pathway: reference | retrievable: true -->
 ## Scope and use
 
 - Applies to screening room sessions triggered by UWB band entry (resident identified by band, not spoken ID).
@@ -11,6 +13,7 @@ Operational policy for staff after AI-assisted wellbeing screening in residentia
 - Aligns with the Aged Care Quality Standards (person-centred care, dignity, risk management) — this SOP does not replace your facility’s clinical governance or mental health emergency plan.
 - This document is indexed for **analyst policy retrieval at session exit** — staff should still follow local clinical judgment when the AI output and the resident’s presentation do not align.
 
+<!-- pathway: reference | retrievable: true -->
 ## Staff roles and responsibilities
 
 | Role | Responsibility |
@@ -26,6 +29,7 @@ Staff must not wait for the analyst report before acting on **visible imminent r
 
 **Delegation:** ENs and care workers may conduct assigned `check_in` visits per facility protocol; passive and active safety pathways require **RN oversight** unless your state delegation framework explicitly permits otherwise.
 
+<!-- pathway: reference | retrievable: true -->
 ## Before and during screening
 
 **Eligibility:** Resident is generally able to participate in a brief voice conversation. If they are acutely unwell, asleep, in acute distress, or mid-procedure, defer screening and note reason in care record.
@@ -42,6 +46,7 @@ Staff must not wait for the analyst report before acting on **visible imminent r
 
 **Room environment:** Screening room should be quiet, private, and familiar. Reduce competing noise from TVs or corridor traffic where possible — poor audio affects transcript quality and analyst confidence.
 
+<!-- pathway: reference | retrievable: true -->
 ## Analyst output reference (staff mapping)
 
 Use the nurse dashboard JSON together with this SOP. Key fields:
@@ -60,6 +65,7 @@ Use the nurse dashboard JSON together with this SOP. Key fields:
 
 **Validation errors on report:** Treat affected domains as **unverified**. RN reviews transcript manually before clinical action. Do not dismiss safety concerns solely because the JSON failed validation.
 
+<!-- pathway: routine | retrievable: true -->
 ## Routine follow-up actions
 
 | Analyst `recommendation` | Facility action | Target timeframe |
@@ -79,6 +85,7 @@ Screen-positive pattern (5+ concern domains with evidence): treat as minimum **`
 - **Low `estimate_confidence`** → short or vague session; prefer nurse re-engagement over assuming `none` means well.
 - **Companion safety handoff occurred** → treat as minimum **`visit_soon`** until RN reviews, even if analyst recommendation is lower.
 
+<!-- pathway: domain_follow_up | retrievable: true -->
 ## Domain-led follow-up (non-crisis)
 
 When `recommendation` is `check_in` or `visit_soon` without safety flags, use domain evidence to guide the nurse conversation:
@@ -94,6 +101,7 @@ When `recommendation` is `check_in` or `visit_soon` without safety flags, use do
 
 These are **prompts for nurse conversation**, not automatic diagnoses or referrals.
 
+<!-- pathway: passive_safety | retrievable: true -->
 ## Passive safety escalation
 
 **Triggers:** passive suicidal thoughts (e.g. wish not to wake, better off dead, feeling a burden) **without** current plan, intent, or means. Analyst flag: `passive_suicidal_thoughts: true`.
@@ -116,6 +124,7 @@ Minimum analyst mapping: `recommendation` **`visit_soon`** or higher.
 
 **Past vs current:** Thoughts described as historical only, with clear denial of current intent → document; RN judgment on whether passive flag in analyst output reflects residual risk.
 
+<!-- pathway: active_safety | retrievable: true -->
 ## Active safety escalation
 
 **Triggers:** current intent, plan, means, or imminent risk (pills, overdose, hurt/kill self, etc.). Analyst flag: `active_suicidal_ideation: true` → `recommendation` **`urgent`**.
@@ -137,6 +146,7 @@ Minimum analyst mapping: `recommendation` **`urgent`**.
 
 **Companion handoff:** If the AI companion stated that a care team member will speak with the resident soon, staff must **honour that** — enter room promptly; do not resume AI screening.
 
+<!-- pathway: active_safety | retrievable: true -->
 ## Medication and means safety
 
 Applies when transcript or analyst report mentions medication access, overdose thoughts, or stockpiled tablets.
@@ -150,6 +160,7 @@ Applies when transcript or analyst report mentions medication access, overdose t
 
 Staff do not remove medications without RN/medical direction and resident rights review.
 
+<!-- pathway: reference | retrievable: true -->
 ## CALD, language, and cultural safety
 
 Many RACF residents speak languages other than English at home.
@@ -163,6 +174,7 @@ Many RACF residents speak languages other than English at home.
 
 Document language used and whether interpreter was offered or declined.
 
+<!-- pathway: reference | retrievable: true -->
 ## Cognitive impairment and fluctuating capacity
 
 | Presentation | Guidance |
@@ -174,6 +186,7 @@ Document language used and whether interpreter was offered or declined.
 
 Analyst `discussed: false` on many domains is common — does not mean resident is well.
 
+<!-- pathway: domain_follow_up | retrievable: true -->
 ## Bereavement, loss, and end-of-life context
 
 | Signal | Guidance |
@@ -185,6 +198,7 @@ Analyst `discussed: false` on many domains is common — does not mean resident 
 
 Do not dismiss passive language solely because resident is elderly or unwell — context determines pathway.
 
+<!-- pathway: domain_follow_up | retrievable: true -->
 ## Men's mental health and stoicism
 
 Australian older men often minimise mood concerns (“I’m fine”, “she’ll be right”).
@@ -193,6 +207,108 @@ Australian older men often minimise mood concerns (“I’m fine”, “she’ll
 - Single-session `none` with low confidence does not rule out concern.
 - Consider GP review if somatic complaints persist without clear medical cause.
 
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Sleep and rest concerns
+
+Poor sleep is one of the most common domain signals and is often the easiest entry point for a reluctant resident.
+
+| Signal in transcript | Nurse focus | Escalate if |
+|----------------------|-------------|-------------|
+| Wakes repeatedly, early-morning waking | Pain, toileting, noise, caffeine, nocturia | Sustained 2+ weeks or paired with low mood |
+| Cannot get to sleep, racing thoughts | Anxiety, worry, recent change or loss | Paired with passive safety language |
+| Sleeping most of the day | Withdrawal, boredom, sedation, low mood | Marked change from baseline |
+| Nightmares or distress on waking | Grief, trauma, medication side-effect | Distress persists after reassurance |
+
+- Review PRN sedative use and timing with the RN before assuming a sleep-hygiene fix.
+- Offer non-drug options first (routine, daytime light and activity, reduced evening noise) per care plan.
+- Document the baseline sleep pattern so change over time is visible at the next screening.
+
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Pain and physical comfort
+
+Untreated pain frequently presents as low mood, irritability, or withdrawal in older residents — especially those who cannot easily self-report.
+
+| Presentation | Nurse focus | Document |
+|--------------|-------------|----------|
+| “Everything aches”, reluctance to move | Site, pattern, and impact on activity and sleep | Pain score + observation |
+| Guarding, grimacing, resisting care | Non-verbal pain in cognitive impairment | Behaviour chart reference |
+| Mood lifts when comfortable | Correlate pain relief with mood | Note for care plan |
+
+- Use an appropriate pain tool (e.g. Abbey Pain Scale for residents with dementia) per facility policy.
+- Flag new or worsening pain for GP or nurse practitioner review; do not attribute pain to ageing alone.
+- Poorly controlled pain with passive safety language is a **compound concern** — raise both with the RN.
+
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Appetite, nutrition, and hydration
+
+| Signal | Nurse focus | Action |
+|--------|-------------|--------|
+| Skipping meals, “not hungry” | Mood, dentition, taste change, medication | Food/fluid chart; weight trend |
+| Unintentional weight loss | Dysphagia, illness, low mood | GP review; dietitian referral if sustained |
+| Refusing fluids | Confusion, UTI, low mood, end-of-life context | Hydration plan; RN review |
+| Eats only with company | Loneliness, environment | Social dining, mealtime support |
+
+- Sustained appetite change across two or more screenings warrants GP and dietitian review.
+- Distinguish reduced appetite from **active food refusal**, which may signal distress or a wish to withdraw — escalate the latter to the RN.
+
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Social connection and loneliness
+
+Loneliness is a strong driver of low mood in residential aged care and is often understated by stoic residents.
+
+| Signal | Nurse focus | Support options |
+|--------|-------------|-----------------|
+| Few or no visitors | Family contact, transport barriers, estrangement | Volunteer visitor, video calls |
+| Declines group activities | Hearing, mobility, English, interest fit | One-to-one before group; interest-matched activity |
+| Recent loss of a friend on-site | Grief, changed routine | Peer support, chaplaincy |
+| “Nobody would notice” language | **Screen for passive safety** — may be more than loneliness | RN review same shift |
+
+- Link findings to the lifestyle and activities team and to the individualised care plan.
+- Watch for loneliness language that shades into passive safety (“burden”, “no point”) — route to the passive safety pathway if present.
+
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Anxiety, worry, and agitation
+
+| Presentation | Nurse focus | Escalate if |
+|--------------|-------------|-------------|
+| Persistent worry about family, health, or money | Practical problem-solving; reassurance | Interfering with sleep or eating |
+| Restlessness, pacing, calling out | Unmet need (pain, toileting, boredom, fear) | Risk to self or others |
+| Panic-like episodes | Triggers, breathing, medical causes | Recurrent or severe |
+| Repetitive questioning (dementia) | Orientation, routine, environment | Escalating distress |
+
+- Rule out medical and environmental causes before assuming a psychological cause.
+- Persistent anxiety with functional impact warrants GP review; do not start or change medication on an AI signal.
+
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Dementia and behavioural support
+
+Behavioural and psychological symptoms of dementia (BPSD) can mimic or mask depression signals in screening.
+
+| Presentation | Nurse focus | Support |
+|--------------|-------------|---------|
+| Apathy, withdrawal | Distinguish from low mood; check baseline | Meaningful activity, life-history cues |
+| Agitation late in the day | Sundowning triggers, environment | Routine, lighting, reduced stimulation |
+| Distress you cannot settle | Unmet need, pain, delirium | RN review; medical assessment |
+
+- Use a non-pharmacological approach first, guided by the resident’s behaviour support plan.
+- For complex BPSD, consider Dementia Support Australia **1800 699 799**.
+- Do not record AI-generated mental-health labels in the dementia care plan — use observed behaviour and RN assessment.
+
+<!-- pathway: domain_follow_up | retrievable: true -->
+## Alcohol and other substance use
+
+Applies when the transcript mentions drinking, “a few too many”, or relying on tablets to cope. This is a **wellbeing** concern; suspected self-harm via medication follows the active safety and medication/means pathways instead.
+
+| Signal | Nurse focus | Action |
+|--------|-------------|--------|
+| Regular alcohol use affecting mood or falls | Quantity, interactions with medication | GP review; document |
+| “Only thing that helps me cope” | Underlying mood, sleep, or pain concern | Domain follow-up + GP |
+| Requests for extra sedatives | Dependence, pain, anxiety | Medication review with RN/GP |
+
+- Approach non-judgementally; residents retain the right to make choices about legal substances within a shared risk framework.
+- Where use is linked to self-harm intent, escalate via **Active safety escalation** and **Medication and means safety**.
+
+<!-- pathway: reference | retrievable: true -->
 ## Family and next of kin
 
 - **Default:** Do not contact family solely on the basis of AI screening output without RN review.
@@ -202,6 +318,7 @@ Australian older men often minimise mood concerns (“I’m fine”, “she’ll
 
 **Burden on family:** Common worry in older residents — note in handover; social work referral if persistent and affecting mood.
 
+<!-- pathway: domain_follow_up | retrievable: true -->
 ## GP and mental health referral pathways
 
 | Trigger | Typical action |
@@ -213,6 +330,7 @@ Australian older men often minimise mood concerns (“I’m fine”, “she’ll
 
 Document referral made, declined, or deferred — and reason.
 
+<!-- pathway: routine | retrievable: true -->
 ## After-hours and weekends
 
 | `recommendation` | After-hours action |
@@ -223,6 +341,7 @@ Document referral made, declined, or deferred — and reason.
 
 Replace on-call names and numbers with your facility roster.
 
+<!-- pathway: active_safety | retrievable: true -->
 ## Crisis contacts (staff reference)
 
 **Do not read aloud to residents** unless your facility SOP explicitly requires it during handoff.
@@ -237,6 +356,7 @@ Replace on-call names and numbers with your facility roster.
 
 Replace with your facility’s approved contact list, RACF escalation tree, GP after-hours line, and on-call roster.
 
+<!-- pathway: reference | retrievable: true -->
 ## Screening room technology (UWB and audio)
 
 | Issue | Action |
@@ -248,6 +368,7 @@ Replace with your facility’s approved contact list, RACF escalation tree, GP a
 
 Technology failures do not delay **visible** safety response in the room.
 
+<!-- pathway: reference | retrievable: true -->
 ## Documentation and handoff
 
 - Log screening session ID, resident ID, end time, and analyst `recommendation` in the care record.
@@ -260,6 +381,7 @@ Technology failures do not delay **visible** safety response in the room.
 
 **Handover template (minimum):** session date/time · recommendation · safety flags · domains with concern · actions taken · next review time · who notified.
 
+<!-- pathway: reference | retrievable: true -->
 ## Re-screening and monitoring
 
 | Situation | Guidance |
@@ -270,6 +392,7 @@ Technology failures do not delay **visible** safety response in the room.
 | Resident refused screening | Do not force; note refusal; RN may offer staff-led check-in within 7 days if appropriate |
 | Improvement after intervention | Continue care plan; routine screening may resume on normal UWB schedule |
 
+<!-- pathway: reference | retrievable: true -->
 ## Privacy and information sharing
 
 - Screening transcripts and analyst reports contain sensitive health information — access on need-to-know basis only.
@@ -278,6 +401,7 @@ Technology failures do not delay **visible** safety response in the room.
 - De-identified aggregate data for quality improvement is permitted per local governance — no resident names in routine audit exports.
 - Residents may request access to their information per APP 12 — route to privacy officer.
 
+<!-- pathway: reference | retrievable: true -->
 ## Staff training and competency
 
 | Topic | Frequency |
@@ -290,6 +414,7 @@ Technology failures do not delay **visible** safety response in the room.
 
 New staff must not review safety escalations unsupervised until competency signed off by RN educator or clinical lead.
 
+<!-- pathway: reference | retrievable: true -->
 ## Staff wellbeing and debrief
 
 Supporting residents in distress affects staff.
@@ -298,12 +423,14 @@ Supporting residents in distress affects staff.
 - Document critical incidents; do not rely on AI transcript alone for staff incident reports.
 - Rotate screening room coverage if staff report vicarious distress.
 
+<!-- pathway: reference | retrievable: true -->
 ## Complaints and resident rights
 
 - Residents may refuse AI screening without affecting other care — document only.
 - Complaints about the companion or screening process → facility complaints officer; preserve session ID for review.
 - Charter of Aged Care Rights applies — dignity, choice, and quality care in all pathways above.
 
+<!-- pathway: reference | retrievable: true -->
 ## Quality assurance
 
 - Monthly sample: nurse reviewer checks that `urgent` and safety cases had documented actions within SOP timeframes.
@@ -312,6 +439,45 @@ Supporting residents in distress affects staff.
 - Quarterly review: false-negative near-misses (staff escalated despite low AI recommendation).
 - Annual review: update crisis contacts, on-call roster, and GP pathways in this document.
 
+<!-- pathway: reference | retrievable: true -->
+## Elder abuse and safeguarding concerns
+
+Screening may surface signs of abuse, neglect, or exploitation. These follow your facility safeguarding policy — they are **not** part of the suicide-risk pathways above.
+
+| Concern | Examples | Action |
+|---------|----------|--------|
+| Physical / neglect | Unexplained injury, poor hygiene, fear of a person | RN and facility safeguarding lead same shift |
+| Financial | Missing money, pressure over will or accounts | Escalate to manager; do not confront the alleged party |
+| Emotional | Intimidation, isolation by another person | Document verbatim; protect the resident |
+
+- Serious Incident Response Scheme (SIRS) reportable incidents must be notified per legislation and facility policy.
+- Support contacts: Older Persons Advocacy Network (OPAN) **1800 700 600**; national elder abuse line **1800 353 374**.
+- Never promise secrecy about a safeguarding disclosure; explain who needs to know and why.
+
+<!-- pathway: reference | retrievable: true -->
+## Consent, capacity, and substitute decision-making
+
+- Screening participation is voluntary; a resident may stop at any time without affecting other care.
+- Capacity is decision-specific and may fluctuate — a person may consent to a chat but not to a care change.
+- Where a resident lacks capacity for a relevant decision, involve the **enduring guardian, attorney, or person responsible** per your state framework and the resident’s advance care directive.
+- Document the basis for any decision made on the resident’s behalf, and the least-restrictive option considered.
+- An AI screening result never overrides a valid advance care directive or a documented refusal of treatment.
+
+<!-- pathway: reference | retrievable: true -->
+## Transitions: admission, hospital transfer, and respite
+
+Mood and safety risk often shift around transitions.
+
+| Transition | Watch for | Action |
+|------------|-----------|--------|
+| New admission (first 4–6 weeks) | Adjustment distress, disorientation, homesickness | Increase informal check-ins; settle-in plan |
+| Return from hospital | Delirium, pain, medication changes, low mood | RN review; reconcile medications |
+| Respite / short stay | Limited baseline, unfamiliar environment | Corroborate AI signal with family and referrer |
+| Room or wing change | Loss of familiar staff and peers | Anticipate and support |
+
+- Treat a low or safety-flagged screening during a transition as **at least `visit_soon`** until the RN reviews the context.
+
+<!-- pathway: reference | retrievable: true -->
 ## Integration with care plans
 
 - Update individualised care plan when repeated domain concerns appear (sleep, social, mood).

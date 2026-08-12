@@ -12,7 +12,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from backend.app.config import DATA_DIR
-from backend.rag.policy.convert import convert_policy_markdown
+from backend.rag.policy.convert import (
+    check_conversion_coverage,
+    convert_policy_markdown,
+    format_coverage_report,
+)
 from backend.rag.policy.validate import format_validation_report, validate_policy_markdown
 
 DEFAULT_DRAFTS_DIR = DATA_DIR / "policy_drafts"
@@ -45,11 +49,16 @@ async def _run_convert(args: argparse.Namespace) -> int:
     _write_output(out_path, converted)
     print(f"Wrote draft: {out_path}")
 
+    coverage = check_conversion_coverage(source, converted)
+    print(format_coverage_report(coverage))
+
+    exit_code = 0 if coverage.ok else 1
     if args.validate:
         result = validate_policy_markdown(converted, locale=args.locale, path=out_path)
         print(format_validation_report(result))
-        return 0 if result.ok else 1
-    return 0
+        if not result.ok:
+            exit_code = 1
+    return exit_code
 
 
 def _run_validate(args: argparse.Namespace) -> int:

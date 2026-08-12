@@ -28,10 +28,8 @@ _GREETINGS: dict[str, str] = {
 
 
 def _culture_companion_path(locale: str) -> Path:
+    # Use the full SKILL.md (documentation form) for the companion prompt.
     culture_dir = SKILLS_DIR / "screening-conversation" / _culture_dir(locale)
-    runtime = culture_dir / "companion-runtime.md"
-    if runtime.is_file():
-        return runtime
     return culture_dir / "SKILL.md"
 
 
@@ -41,17 +39,15 @@ def load_companion_system_prompt(
     vocabulary_context: str = "",
 ) -> str:
     culture = _culture_dir(locale)
-    base_path = SKILLS_DIR / "screening-conversation" / "companion-runtime.md"
-    if not base_path.is_file():
-        base_path = SKILLS_DIR / "screening-conversation" / "SKILL.md"
+    base_path = SKILLS_DIR / "screening-conversation" / "SKILL.md"
     base = _read(base_path)
     culture_skill = _read(_culture_companion_path(locale))
     vocab_block = ""
     if vocabulary_context.strip():
         vocab_block = (
             "\n\n---\n\n## Retrieved local vocabulary (this turn)\n\n"
-            "Mirror the resident's words using these meanings. "
-            "Do not treat as clinical terms.\n\n"
+            "Use these meanings to understand the resident. Do not treat as clinical "
+            "terms, and do not force these words into your own reply.\n\n"
             + vocabulary_context.strip()
         )
     return f"{base}\n\n---\n\n{culture_skill}{vocab_block}"

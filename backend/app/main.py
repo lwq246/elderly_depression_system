@@ -54,8 +54,6 @@ def health():
         "openrouter_provider": settings.openrouter_provider or None,
         "rag_enabled": settings.rag_enabled,
         "rag_use_llm_summary": settings.rag_use_llm_summary,
-        "rag_retrieval_mode": settings.rag_retrieval_mode,
-        "rag_rerank_enabled": settings.rag_rerank_enabled,
         "rag_chunks": rag_chunks,
         "rag_policy_chunks": rag_policy_chunks,
         "rag_vocab_chunks": rag_vocab_chunks,

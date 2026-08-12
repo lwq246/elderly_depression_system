@@ -1,6 +1,7 @@
 """Culture vocabulary retrieval for companion per-turn context.
 
-Local glossary (data.py) + literal substring match — no Chroma or embeddings.
+Local glossary (data.py) + boundary-aware literal match (matcher.py) — no Chroma or
+embeddings. The single compiled matcher is shared with normalize.py.
 """
 
 from __future__ import annotations
@@ -8,17 +9,14 @@ from __future__ import annotations
 from typing import Any
 
 from backend.app.config import settings
-from backend.rag.vocab.data import VOCABULARY_TERMS
+from backend.rag.vocab.matcher import find_matches, term_in_text
 
 _VOCAB_SECTION = "Words residents often use"
 
 
 def _term_in_resident_text(term: str, resident_text: str) -> bool:
-    """True when the culture term appears in the resident message."""
-    needle = term.strip().lower()
-    if not needle:
-        return False
-    return needle in resident_text.lower()
+    """True when the culture term appears in the resident message (word-boundary aware)."""
+    return term_in_text(term, resident_text)
 
 
 def _vocab_row(*, term: str, meaning: str, locale: str) -> dict[str, Any]:
@@ -33,43 +31,11 @@ def _vocab_row(*, term: str, meaning: str, locale: str) -> dict[str, Any]:
 
 
 def _literal_vocabulary_matches(resident_text: str, *, locale: str) -> list[dict[str, Any]]:
-    """Glossary terms in the message, longest first; shorter nested terms removed."""
-    haystack = resident_text.strip().lower()
-    if not haystack:
-        return []
-
-    seen_terms: set[str] = set()
-    rows: list[dict[str, Any]] = []
-    for variants, meaning in VOCABULARY_TERMS.get(locale, []):
-        general = meaning.strip()
-        if not general:
-            continue
-        for variant in variants:
-            term = variant.strip().lower()
-            if not term or term in seen_terms:
-                continue
-            if term not in haystack:
-                continue
-            seen_terms.add(term)
-            rows.append(_vocab_row(term=term, meaning=general, locale=locale))
-
-    rows.sort(key=lambda row: len((row.get("metadata") or {}).get("term", "")), reverse=True)
-    return _drop_shorter_substring_matches(rows)
-
-
-def _drop_shorter_substring_matches(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Keep longest matches only — drop shorter terms contained in a longer match."""
-    kept: list[dict[str, Any]] = []
-    kept_terms: list[str] = []
-    for row in rows:
-        term = ((row.get("metadata") or {}).get("term") or "").strip().lower()
-        if not term:
-            continue
-        if any(term in longer for longer in kept_terms):
-            continue
-        kept.append(row)
-        kept_terms.append(term)
-    return kept
+    """Glossary terms in the message as rows (longest match wins, nested terms dropped)."""
+    return [
+        _vocab_row(term=term, meaning=meaning, locale=locale)
+        for term, meaning in find_matches(resident_text, locale)
+    ]
 
 
 def format_vocabulary_context(chunks: list[dict[str, Any]]) -> str:
@@ -110,17 +76,6 @@ def retrieve_vocabulary_literal_hits(
 ) -> list[dict[str, Any]]:
     """All literal glossary matches for the locale (before top_k cap)."""
     return _literal_vocabulary_matches(resident_text, locale=locale)
-
-
-def retrieve_vocabulary_chroma_hits(
-    resident_text: str,
-    *,
-    locale: str,
-    top_k: int | None = None,
-) -> list[dict[str, Any]]:
-    """Alias for tests/reports: all literal matches (legacy name from Chroma era)."""
-    _ = top_k
-    return retrieve_vocabulary_literal_hits(resident_text, locale=locale)
 
 
 def retrieve_vocabulary_for_companion(

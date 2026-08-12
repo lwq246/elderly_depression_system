@@ -3,7 +3,20 @@ from typing import Any
 from .config import settings
 from .llm import chat_completion, check_companion_output
 from .llm_capture import record_llm_input
+from .safety import text_signals_safety_risk
 from .skills import load_companion_system_prompt
+
+# Locale-specific handoff lines (kept in sync with culture-*/companion-runtime.md).
+_SAFETY_HANDOFF: dict[str, str] = {
+    "en-AU": (
+        "Thank you for telling me. Someone from the care team will come and have a "
+        "chat with you soon."
+    ),
+    "en-SG": (
+        "Thank you for sharing that with me. A member of the care team will come and "
+        "speak with you shortly."
+    ),
+}
 
 
 def _latest_resident_text(transcript: list[dict[str, Any]]) -> str:
@@ -57,6 +70,11 @@ async def generate_companion_reply(
     locale: str,
     transcript: list[dict[str, Any]],
 ) -> tuple[str, list[str]]:
+    # Safety-critical short-circuit: if the resident's latest turn discloses self-harm
+    # risk, deliver the handoff line deterministically instead of trusting the LLM.
+    if text_signals_safety_risk(_latest_resident_text(transcript)):
+        return _SAFETY_HANDOFF.get(locale, _SAFETY_HANDOFF["en-SG"]), []
+
     system = load_companion_system_prompt(
         locale,
         vocabulary_context=_companion_vocabulary_context(locale, transcript),

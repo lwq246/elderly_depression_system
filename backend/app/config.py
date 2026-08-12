@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     rag_enabled: bool = False
     rag_chroma_path: str = str(DATA_DIR / "rag" / "chroma")
     rag_top_k: int = 3
-    rag_query_max_chars: int = 4000
     # Min cosine similarity for Chroma retrieval (cosine space: similarity = 1 - distance)
     rag_min_similarity: float = 0.35
     # Embedding backend: local (sentence-transformers) or api (OpenRouter/OpenAI)
@@ -36,13 +35,6 @@ class Settings(BaseSettings):
     rag_embedding_model: str = "openai/text-embedding-3-small"
     rag_use_llm_summary: bool = True
     rag_summary_max_chars: int = 800
-    # Policy retrieval: questions = LLM policy lookup questions + multi-query embed; tags = SOP tag summary + pathway filter
-    rag_retrieval_mode: str = "tags"
-    rag_question_count: int = 4
-    # Two-stage retrieval: fetch candidate_pool from Chroma, then cross-encoder rerank to top_k
-    rag_rerank_enabled: bool = True
-    rag_rerank_model: str = "BAAI/bge-reranker-base"
-    rag_candidate_pool: int = 20
     # Parent/child chunking: sections split into overlapping child windows for embedding; full parent text returned
     rag_child_max_chars: int = 1200
     rag_child_overlap_chars: int = 200
@@ -53,12 +45,6 @@ class Settings(BaseSettings):
     # Companion per-turn vocabulary RAG tuning (backend/rag/vocab/data.py → Chroma)
     rag_vocab_top_k: int = 20
     rag_vocab_locales: str = "en-SG,en-AU"
-    # Logfire observability (https://logfire.pydantic.dev) — no transcript/PHI in logs
-    logfire_enabled: bool = True
-    logfire_token: str = ""
-    logfire_service_name: str = "depression-screening-api"
-    logfire_send_to: str = "if-token-present"
-    logfire_excluded_urls: str = "/api/health,/docs,/openapi.json,/redoc"
     # Record full LLM system/user prompts on session (test/debug; off in production)
     capture_llm_inputs: bool = False
 

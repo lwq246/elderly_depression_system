@@ -55,29 +55,6 @@ Optional: set `BACKEND_URL` in `frontend/.env.local` if the API is not on `http:
 
 **OpenRouter (GPT-4o mini):** In `.env`, set `OPENAI_API_KEY` to your [OpenRouter key](https://openrouter.ai/keys), `OPENAI_BASE_URL=https://openrouter.ai/api/v1`, and `OPENAI_MODEL=openai/gpt-4o-mini`. Restart the backend; `/api/health` should show `llm_configured: true` and the model name.
 
-## Logfire observability
-
-Optional [Pydantic Logfire](https://logfire.pydantic.dev) tracing for FastAPI + OpenRouter httpx calls. **Resident transcript text is not logged** — only session metadata, latencies, and analyst outcomes.
-
-```powershell
-C:\Python314\python.exe -m pip install "logfire[fastapi,httpx]"
-C:\Python314\python.exe -m logfire auth
-C:\Python314\python.exe -m logfire projects use <your-project>
-```
-
-On Windows, `logfire` alone often fails (Scripts folder not on PATH). Always use `C:\Python314\python.exe -m logfire ...`.
-
-Add to `.env` (or rely on local `logfire projects use`):
-
-```
-LOGFIRE_ENABLED=true
-LOGFIRE_TOKEN=pylf_...
-```
-
-Set `LOGFIRE_ENABLED=false` to disable entirely. Without a token, the backend still runs (`send_to_logfire=if-token-present`).
-
-Events: `session_entry`, `session_message`, `session_exit`, `llm_chat_completion`. View traces at https://logfire.pydantic.dev/
-
 ## API endpoints
 
 | Method | Path | Description |

@@ -21,6 +21,7 @@ Rules:
 - If safety was never addressed, set safety_discussed: false and passive/active to not_discussed.
 
 Output exactly these lines (plain text, no markdown, no JSON):
+retrieval_focus: one SOP-style sentence naming the facility guidance to look up (e.g. "Passive safety escalation steps and documentation for a resident with low mood and poor sleep"). No resident quotes.
 recommendation_target: none | check_in | visit_soon | urgent
 passive_suicidal_thoughts: true | false | not_discussed
 active_suicidal_ideation: true | false | not_discussed

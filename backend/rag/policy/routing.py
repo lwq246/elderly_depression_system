@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 # Pathway labels stored on Chroma chunk metadata at ingest.
 PATHWAY_ROUTINE = "routine"
 PATHWAY_DOMAIN = "domain_follow_up"
@@ -60,6 +58,11 @@ def pathways_for_summary(tags: dict[str, str]) -> list[str] | None:
     if pathway == PATHWAY_PASSIVE or _is_true(passive):
         return [PATHWAY_PASSIVE, PATHWAY_ROUTINE]
 
+    # Screen-positive pattern (5+ concern domains) → at least domain-led follow-up,
+    # even if the recommendation tag is conservative. Safety branches above win first.
+    if _is_true(tags.get("screen_positive_pattern", "")):
+        return [PATHWAY_DOMAIN, PATHWAY_ROUTINE]
+
     if pathway == PATHWAY_DOMAIN or (
         recommendation in {"check_in", "visit_soon"}
         and _is_false(passive)
@@ -71,50 +74,5 @@ def pathways_for_summary(tags: dict[str, str]) -> list[str] | None:
     if pathway == PATHWAY_ROUTINE or recommendation in {"none", "check_in"}:
         if _is_false(passive) and _is_false(active):
             return [PATHWAY_ROUTINE, PATHWAY_DOMAIN]
-
-    return None
-
-
-def pathways_from_transcript_heuristic(transcript: list[dict[str, Any]]) -> list[str] | None:
-    """Fallback when summary tags are missing — scan resident text for crisis cues."""
-    resident_text = " ".join(
-        (t.get("text") or "").lower() for t in transcript if t.get("role") == "resident"
-    )
-    if not resident_text.strip():
-        return None
-
-    has_denial = any(
-        phrase in resident_text
-        for phrase in (
-            "do not wish to hurt",
-            "don't wish to hurt",
-            "no plan",
-            "will not do that",
-            "no safety thoughts",
-            "nothing like that",
-        )
-    )
-
-    if any(cue in resident_text for cue in ("pill", "overdose", "taking too many")):
-        return [PATHWAY_ACTIVE, PATHWAY_PASSIVE]
-
-    passive_cues = (
-        "wish i did not wake",
-        "wish i wasn't here",
-        "better off dead",
-        "wish not to wake",
-    )
-    if any(cue in resident_text for cue in passive_cues):
-        return [PATHWAY_PASSIVE, PATHWAY_ROUTINE]
-
-    if any(
-        cue in resident_text for cue in ("kill myself", "end my life", "hurt myself")
-    ):
-        if has_denial:
-            return [PATHWAY_ROUTINE, PATHWAY_DOMAIN]
-        return [PATHWAY_ACTIVE, PATHWAY_PASSIVE]
-
-    if "burden" in resident_text and not has_denial:
-        return [PATHWAY_PASSIVE, PATHWAY_ROUTINE]
 
     return None

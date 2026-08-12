@@ -2,30 +2,23 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from backend.app.config import settings
+from backend.app.safety import transcript_signals_safety_risk
 from backend.rag.embeddings import embed_texts
-from backend.rag.policy.questions import generate_policy_questions
-from backend.rag.policy.rerank import rerank_rows
 from backend.rag.policy.routing import (
     PATHWAY_ACTIVE,
     PATHWAY_PASSIVE,
     parse_policy_summary,
     pathways_for_summary,
-    pathways_from_transcript_heuristic,
 )
 from backend.rag.policy.summary import summarize_transcript_for_rag
 from backend.rag.query import query_collection
 from backend.rag.store import get_policy_collection
 
 _SAFETY_PATHWAYS = {PATHWAY_PASSIVE, PATHWAY_ACTIVE}
-
-_QUERY_PREFIX = (
-    "Residential aged care facility screening follow-up escalation documentation SOP. "
-    "Policy lookup question:"
-)
 
 _TAGS_QUERY_PREFIX = (
     "Residential aged care facility screening follow-up escalation documentation SOP. "
@@ -39,7 +32,6 @@ class RagRetrievalResult:
     summary: str | None = None
     summary_failed: bool = False
     query: str | None = None
-    questions: list[str] = field(default_factory=list)
 
 
 def _chunk_key(meta: dict[str, Any]) -> str:
@@ -52,27 +44,19 @@ def _chunk_key(meta: dict[str, Any]) -> str:
     return f"{locale}:{section}"
 
 
-def _candidate_pool() -> int:
-    if settings.rag_rerank_enabled:
-        return max(settings.rag_candidate_pool, settings.rag_top_k)
-    return settings.rag_top_k
-
-
 def _finalize(
     merged: dict[str, dict[str, Any]],
     *,
-    rerank_query: str,
     must_include_keys: frozenset[str] = frozenset(),
 ) -> list[dict[str, Any]]:
-    """Cosine-sort, cross-encoder rerank, then take top_k.
+    """Cosine-sort, then take top_k.
 
-    ``must_include_keys`` (safety sections) are guaranteed in the output even if the
-    reranker would rank them below top_k — they are never dropped.
+    ``must_include_keys`` (safety sections) are guaranteed in the output even if they
+    would rank below top_k — they are never dropped.
     """
-    cosine_sorted = sorted(
+    ranked = sorted(
         merged.values(), key=lambda r: r.get("cosine_similarity") or -1, reverse=True
     )
-    ranked = rerank_rows(rerank_query, cosine_sorted)
 
     must = [r for r in ranked if _chunk_key(r["metadata"]) in must_include_keys]
     rest = [r for r in ranked if _chunk_key(r["metadata"]) not in must_include_keys]
@@ -84,10 +68,8 @@ def _finalize(
     return top
 
 
-def build_facility_policy_query(text: str, *, mode: str | None = None) -> str:
-    strategy = mode or settings.rag_retrieval_mode
-    prefix = _QUERY_PREFIX if strategy == "questions" else _TAGS_QUERY_PREFIX
-    return f"{prefix}\n{text.strip()}"
+def build_facility_policy_query(text: str) -> str:
+    return f"{_TAGS_QUERY_PREFIX}\n{text.strip()}"
 
 
 def _merge_rows(merged: dict[str, dict[str, Any]], rows: list[dict[str, Any]]) -> None:
@@ -98,48 +80,6 @@ def _merge_rows(merged: dict[str, dict[str, Any]], rows: list[dict[str, Any]]) -
         existing_sim = (existing or {}).get("cosine_similarity") or -1
         if existing is None or row_sim > existing_sim:
             merged[key] = row
-
-
-async def _retrieve_by_questions(
-    transcript: list[dict[str, Any]],
-    *,
-    locale: str,
-    collection: Any,
-) -> RagRetrievalResult:
-    try:
-        questions = await generate_policy_questions(transcript, locale=locale)
-    except Exception:
-        return RagRetrievalResult(chunks=[], summary_failed=True)
-
-    if not questions:
-        return RagRetrievalResult(chunks=[], summary_failed=True)
-
-    queries = [build_facility_policy_query(q, mode="questions") for q in questions]
-    embeddings = embed_texts(queries)
-    merged: dict[str, dict[str, Any]] = {}
-    per_query_k = max(_candidate_pool(), 3)
-
-    for query, embedding in zip(queries, embeddings, strict=True):
-        _merge_rows(
-            merged,
-            query_collection(
-                query,
-                doc_type="facility_policy",
-                locale=locale,
-                top_k=per_query_k,
-                query_embedding=embedding,
-                n_results=min(collection.count(), per_query_k * 3),
-            ),
-        )
-
-    summary = "\n".join(f"{i}. {q}" for i, q in enumerate(questions, start=1))
-    top = _finalize(merged, rerank_query=" ".join(questions))
-    return RagRetrievalResult(
-        chunks=top,
-        summary=summary,
-        query="\n---\n".join(queries),
-        questions=questions,
-    )
 
 
 async def _retrieve_by_tags(
@@ -157,11 +97,11 @@ async def _retrieve_by_tags(
         return RagRetrievalResult(chunks=[], summary_failed=True)
 
     merged: dict[str, dict[str, Any]] = {}
-    query = build_facility_policy_query(summary, mode="tags")
+    query = build_facility_policy_query(summary)
     embedding = embed_texts([query])[0]
     tags = parse_policy_summary(summary)
-    pathways = pathways_for_summary(tags) or pathways_from_transcript_heuristic(transcript)
-    pool = _candidate_pool()
+    pathways = pathways_for_summary(tags)
+    pool = settings.rag_top_k
 
     def _collect(pathway_filter: list[str] | None) -> None:
         _merge_rows(
@@ -179,11 +119,18 @@ async def _retrieve_by_tags(
 
     # Broad retrieval first (no hard pathway exclusion), then *guarantee-include* the
     # safety sections when a passive/active cue is detected — a misclassified tag can
-    # never drop the crisis protocol. The reranker orders the final set.
+    # never drop the crisis protocol. Cosine similarity orders the final set.
+    #
+    # Two independent triggers, either of which forces the safety sections:
+    #   1. the LLM summariser tagged a passive/active pathway, and
+    #   2. a deterministic scan of the raw transcript for explicit self-harm language.
+    # (2) is the hardening backstop: if a small local model under-tags the summary, the
+    # literal detector still pulls the escalation protocol. Bias is toward triggering.
     _collect(None)
-    safety = [p for p in (pathways or []) if p in _SAFETY_PATHWAYS]
+    llm_safety = [p for p in (pathways or []) if p in _SAFETY_PATHWAYS]
+    transcript_safety = transcript_signals_safety_risk(transcript)
     must_keys: frozenset[str] = frozenset()
-    if safety:
+    if llm_safety or transcript_safety:
         # Any safety cue pulls BOTH passive and active sections: a passive/active
         # mislabel (residents under-disclose intent) must never hide the more urgent
         # protocol. The content distinction lives in the sections; retrieval shows both.
@@ -194,7 +141,7 @@ async def _retrieve_by_tags(
             if r["metadata"].get("pathway") in _SAFETY_PATHWAYS
         )
 
-    top = _finalize(merged, rerank_query=summary, must_include_keys=must_keys)
+    top = _finalize(merged, must_include_keys=must_keys)
     return RagRetrievalResult(
         chunks=top,
         summary=summary,
@@ -215,8 +162,6 @@ async def retrieve_for_analyst(
     if not settings.rag_use_llm_summary:
         return RagRetrievalResult(chunks=[])
 
-    if settings.rag_retrieval_mode == "questions":
-        return await _retrieve_by_questions(transcript, locale=locale, collection=collection)
     return await _retrieve_by_tags(transcript, locale=locale, collection=collection)
 
 
