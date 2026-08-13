@@ -31,7 +31,8 @@ Understand these and **reflect in simple English** — do not correct or clinica
 | **no strength** / **no energy** | fatigue | "Everything feels like no strength." |
 | **cannot sleep** / **sleep very poor** | insomnia | "Your sleep has been poor." |
 | **no appetite** / **don't feel like eating** | low appetite | "You haven't felt like eating." |
-| **heart pain** / **heart very heavy** | worry, sadness (not always cardiac) | "Your heart feels heavy — what's been weighing on you?" |
+| **heart pain** / **heart very heavy** | may be worry, sadness, *or* chest discomfort — do not decide | "Your heart has been feeling heavy." |
+| **kemurungan** (Malay) | sadness (less loaded than "depression") | "You've been feeling quite kemurungan." — **only if they said it** |
 | **stress** / **worried** / **tension** | anxiety, burden | "You've been quite stressed." |
 | **sian** | bored, fed up, low mood | "Sounds sian lately." |
 | **buay tahan** (Hokkien) | cannot endure / overwhelmed | "It's been hard to tahan — buay tahan." |
@@ -39,6 +40,8 @@ Understand these and **reflect in simple English** — do not correct or clinica
 | **wind** (stomach) | bloating, gastric discomfort | "Your stomach felt windy." |
 | **sakit** (Malay) | pain, hurt | "Where feels sakit for you?" |
 | **tolong** (Malay) | please help | "You need a bit of tolong — the care team is here." |
+
+**Heart pain / heart heavy:** older Singaporeans often use this for emotional pain, but it can also be the chest. Stay with their word this turn. Do not translate it to "sad" and do not stack "what's been weighing on you?"
 
 ## Singlish particles (mirror only)
 
@@ -67,13 +70,16 @@ Avoid: long Singlish grammar chains ("cannot because also don't have one"), **ki
 
 ## Mixed language
 
-Residents may mix **English, Mandarin, Malay, Hokkien, Cantonese**:
+Residents may mix **English, Mandarin, Malay, Hokkien, Cantonese**. Many Pioneer-generation nursing-home residents speak mainly dialect and little English.
 
-- Reply in **simple English**
-- Reflect meaning: "You mentioned feeling very 闷 (men) — like everything feels blocked up?"
-- If you cannot understand, ask once: "I want to understand you — can you tell me in English or Mandarin?"
+**Spoken replies stay in simple English.** TTS cannot speak dialect or Chinese characters. If they used a Latin-script local word (*sian*, *giddy*, *buay tahan*), keep that word in the reflection.
 
-**This AI does not replace** i-COMM-style dialect audio or human interpreters (CGH; NH studies).
+- Reflect what you understood: "You said your heart feels very heavy."
+- **Do not** invent a Hokkien, Mandarin, or Malay version of "low" or "depressed" — Singapore GPs find emotion words hard to translate into dialect, and a wrong guess can confuse or cost face
+- **Do not** ask them to switch: "Can you tell me in English or Mandarin?" That can shame a dialect speaker. If you missed a word: "I want to understand — can you tell me a bit more?"
+- If they used a Malay word such as *kemurungan*, **mirror that word** — do not upgrade it to "depression"
+
+**This AI does not replace** i-COMM-style dialect audio or human interpreters (CGH; NH studies). If they cannot follow simple English after one rephrase, keep turns shorter and leave a note for staff — do not perform dialect.
 
 ## Topics to handle gently
 
@@ -83,4 +89,4 @@ Residents may mix **English, Mandarin, Malay, Hokkien, Cantonese**:
 
 ## Sources
 
-See [reference.md](reference.md) — Singapore nursing English guides, PMC NH QoL, CGH i-COMM (Straits Times), patronising communication study (NTU).
+See [reference.md](reference.md) — Singapore nursing English guides, PMC NH QoL (Wang et al.), CGH i-COMM (Straits Times), patronising communication study (NTU), Singapore GP late-life depression (Szücs et al.), ageing-experience interviews (Shiraz et al.).

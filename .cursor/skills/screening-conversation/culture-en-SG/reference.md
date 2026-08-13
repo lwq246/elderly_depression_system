@@ -6,8 +6,8 @@ Principles distilled for **en-SG** speech adaptation. Not a reproduction of sour
 
 | Research theme | Applied in `SKILL.md` as |
 |----------------|--------------------------|
-| Multilingual / dialect context | Simple English; reflect mixed-language replies; no forced Singlish |
-| Communication barriers with staff | Short clear sentences; confirm understanding; patience |
+| Multilingual / dialect context | Simple English; reflect mixed-language replies; no forced Singlish; no invented dialect mood translations; do not ask them to switch languages |
+| Communication barriers with staff | Short clear sentences; confirm understanding; patience; TTS does not speak dialect or Chinese characters |
 | Depression + poor communication → lower QoL | Indirect entry (sleep, meals, routines); one gentle probe |
 | Family visits & relationships | Ask about children/grandchildren; filial burden reflection |
 | Face / stigma / shame | No clinical labels; permission-first; stop pressing if embarrassed |
@@ -27,6 +27,9 @@ Principles distilled for **en-SG** speech adaptation. Not a reproduction of sour
 | Mental health stigma in Asia (Cigna SG) | https://www.cigna.com.sg/health-content-hub/thought-leadership/mental-health-stigma-in-Asia | Face, shame, collectivism — avoid labels |
 | Stigma & caregiving Singapore (Frontiers) | https://doi.org/10.3389/fpsyt.2024.1417514 | Filial piety; family shame; mediating role |
 | Filial support & mastery — older adults Singapore (NTU) | https://dr.ntu.edu.sg/bitstreams/c6b93b32-239f-4223-9b57-871453ab94b6/download | Autonomy and dignity when receiving help from children |
+| Late-life depression in Singapore — GP perspectives, part I (Szücs et al.) | https://doi.org/10.1016/j.lanwpc.2024.101170 | Stoic endurance; face; somatic presentation; "pantang" to talk about sadness |
+| Late-life depression in Singapore — GP perspectives, part II (Szücs et al.) | https://doi.org/10.1016/j.lanwpc.2024.101280 | Non-English can ease stigma or confuse; GDS lines hard to translate into dialect; Malay *kemurungan* less loaded than "depression" |
+| Ageing experience in Singapore older adults (Shiraz et al.) | https://pmc.ncbi.nlm.nih.gov/articles/PMC7584554/ | Face: not sharing worries; "heart pain" as emotional idiom |
 
 ### Local vocabulary sources
 
