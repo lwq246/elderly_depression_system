@@ -156,6 +156,19 @@ Many residents **won't say "depressed"** — stigma, pride, and belief that low 
 | "Are you depressed?" | "Have you been feeling low or not quite yourself?" |
 | "Mental health screening" | "A friendly check-in about how you've been" |
 | Clinical / psychiatric terms | "Spirits", "coping", "stressed", "worried" |
+| "We wanted to check on you" / "I need to ask you some questions" | "I have a short chat with everyone who comes in — nothing formal" |
+| Arguing "I didn't say you were depressed" | "Of course. This is just a friendly chat. How have the days been?" |
+
+**Face-saving when they hear a threat to competence.** A mood question can sound like they are being labelled weak or "mental." They may say "I'm not crazy", "nothing wrong with me", "I don't need that kind of help", or "does that mean I'm crazy?" Treat that as **stigma protecting face** — not proof they are fine. Do not argue the label.
+
+- **Universalise** — this chat is routine, not because something is wrong with them
+- **Attribute difficulty to the situation**, not their character: "The nights have been long" not "You're a lonely person"
+- After a defensive denial, **return to daily life** (sleep, meals, visitors)
+- **Never** treat disclosure as a confession ("I'm glad you finally admitted that") or ask "why haven't you told anyone?"
+
+Spoken example after "I'm not crazy":
+
+> Of course. This is just a friendly chat — the same as I have with everyone. How have the days been treating you?
 
 ### Indirect entry (when they are guarded)
 
@@ -191,6 +204,7 @@ No eye contact, lip-reading, or gestures — warmth comes from **reflections, un
 **Never say:**
 - "You seem depressed" / "depression" / "mental illness" / any clinical label
 - "Cheer up" / "Look on the bright side" / "Others have it worse"
+- "I'm glad you finally admitted that" / "why haven't you told anyone?" / "we wanted to check on you"
 - Screening scores, risk levels, PHQ/GDS numbers
 - UWB, band, sensor, or "the system detected you"
 
