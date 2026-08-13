@@ -109,17 +109,22 @@ Sources: RASA RACF Toolkit; Murray PHN validation and de-escalation guidance.
 
 ## Voice-only room (speaker + microphone)
 
-Adapt for **no visual contact**:
+Adapt for **no visual contact** and **common age-related hearing loss** (about 1 in 3 aged 65–74; nearly half over 75). Presbycusis often blunts high-frequency consonants (*s, sh, th, f*), so speech sounds mumbled even when volume is adequate. Louder is not clearer. On a room speaker there is **no lip-reading**.
 
-- Speak **slowly and clearly**; short sentences for TTS
+**What helps comprehension (without sounding like a child):**
+- Reduce **nested / embedded clauses**; keep complete adult sentences. Semantic context helps listeners fill gaps
 - **One question per turn** — stacking overwhelms over audio
-- Confirm understanding: "Does that make sense?" / "Have I understood you right?"
-- Assume **hearing difficulty** — avoid mumbling phrases and long clauses
+- **Rephrase, do not repeat** the same line if they say "what?" or "pardon" — different words give new phonetic cues
+- **Say the preferred name first** on the opener so they can attend before the question
+- **Announce topic changes** — sudden topic shifts are hard to follow by ear
+- Confirm with **content**, not "Did you hear me?" / a bare "Do you understand?" — some residents say yes when they missed the question
 - Quiet room is a hardware concern; do not apologise for "the speaker" repeatedly
 
-Cannot rely on eye contact or gestures — warmth comes from **word choice, pace, and reflections**.
+**What harms (elderspeak):** diminutives ("dear", "love"), collective "we" ("How are we feeling today?"), tag questions that imply the answer, telegraphic fragments, exaggerated slow/high pitch. Elderspeak is perceived as patronising, can lower self-esteem and increase resistiveness to care, and does **not** improve understanding. Unnaturally short, slow, high-pitched speech also leads older adults to *report* more communication problems.
 
-Sources: Supportive Care MI; RASA RACF communication skills.
+Cannot rely on eye contact or gestures — warmth comes from **word choice, unhurried adult pace, and reflections**.
+
+Sources: NIDCD age-related hearing loss; University of Arizona Elder Care — communicating with hearing loss; Kemper & Harden 1999 (beneficial vs harmful elderspeak); Williams, Kemper & Hummert 2003 / CHAT trials; Supportive Care MI; RASA RACF communication skills.
 
 ## Life transitions and grief
 
@@ -144,6 +149,7 @@ Sources: RASA RACF Toolkit; Peregrine Centre toolkit.
 | Helps | Harms |
 |-------|-------|
 | Patience, warmth, one question at a time | Clinical labels, scores, rushing |
+| Complete adult sentences; rephrase if missed | Elderspeak, shouting the same line, "Did you hear me?" |
 | Reflecting their exact words | Arguing, toxic positivity |
 | Sleep/energy/meals as entry topics | "Snap out of it" / "Cheer up" |
 | Noting change without blame | Accusatory "you always…" framing |
@@ -179,5 +185,10 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | Help-seeking beliefs among older men (Health Promotion Intl 2025) | https://doi.org/10.1093/heapro/daaf170 |
 | Why the elderly hide mental health struggles (SG) | https://www.impossiblepsychservices.com.sg/our-resources/articles/2025/01/31/why-the-elderly-often-hide-their-mental-health-struggles/ |
 | Late-life depression in Singapore — GP perspectives | https://doi.org/10.31219/osf.io/hmzk3 |
+| NIDCD — Age-related hearing loss (presbycusis) | https://www.nidcd.nih.gov/health/age-related-hearing-loss |
+| University of Arizona Elder Care — communicating with hearing loss | https://aging.arizona.edu/sites/default/files/2023-11/Communicating%20with%20People%20who%20have%20Hearing%20Loss.pdf |
+| Kemper & Harden 1999 — beneficial vs harmful elderspeak | https://pubmed.ncbi.nlm.nih.gov/10632152/ |
+| Williams, Kemper & Hummert 2003 — reducing elderspeak in nursing homes | https://doi.org/10.1093/geront/43.2.242 |
+| Williams et al. 2017 — CHAT: reducing elderspeak and resistiveness to care | https://pubmed.ncbi.nlm.nih.gov/27048705/ |
 
 **Note:** This skill supports screening for staff review, not diagnosis or treatment. Clinical decisions remain with qualified care staff.
