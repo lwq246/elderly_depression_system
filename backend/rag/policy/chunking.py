@@ -7,11 +7,10 @@ import re
 from backend.rag.policy.embed_text import build_embed_text
 from backend.rag.policy.section_meta import (
     is_section_directive_line,
-    resolve_section_meta,
+    resolve_section_pathway,
     strip_section_directives,
 )
 
-MIN_CHUNK_CHARS = 150
 MERGE_INTRO_INTO = "Scope and use"
 
 
@@ -96,7 +95,7 @@ def _make_child_chunks(
     overlap_chars: int,
 ) -> list[dict]:
     body = strip_section_directives(text.strip())
-    if len(body) < MIN_CHUNK_CHARS:
+    if not body:
         return []
     parent_id = f"{doc_id}:{section}"
     children = _split_into_children(body, max_chars=max_chars, overlap_chars=overlap_chars)
@@ -163,7 +162,7 @@ def iter_policy_sections(
     *,
     locale: str = "all",
 ) -> list[dict]:
-    """Return all ## sections with resolved pathway and retrievable flags (for validation)."""
+    """Return all ## sections with resolved pathway (for validation)."""
     sections = _split_sections(text)
     intro = sections.pop("Introduction", "")
 
@@ -172,14 +171,13 @@ def iter_policy_sections(
 
     rows: list[dict] = []
     for heading, content in sections.items():
-        pathway, retrievable = resolve_section_meta(heading, content)
+        pathway = resolve_section_pathway(heading, content)
         body = strip_section_directives(content.strip())
         rows.append(
             {
                 "section": heading,
                 "locale": locale,
                 "pathway": pathway,
-                "retrievable": retrievable,
                 "char_count": len(body),
             }
         )
@@ -218,9 +216,7 @@ def chunk_markdown(
 
     chunks: list[dict] = []
     for heading, content in sections.items():
-        pathway, retrievable = resolve_section_meta(heading, content)
-        if not retrievable:
-            continue
+        pathway = resolve_section_pathway(heading, content)
         chunks.extend(
             _make_child_chunks(
                 doc_id=doc_id,

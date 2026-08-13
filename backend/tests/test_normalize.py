@@ -7,7 +7,6 @@ from backend.app.validator import (
     resolve_evidence_refs,
     validate_analyst_report,
 )
-from backend.rag.vocab.normalize import normalize_resident_text
 
 
 def _minimal_report(**overrides) -> dict:
@@ -45,36 +44,8 @@ def _minimal_report(**overrides) -> dict:
     return report
 
 
-class NormalizeResidentTextTests(unittest.TestCase):
-    def test_replaces_sg_culture_terms(self) -> None:
-        raw = "Very sian lately, buay tahan already."
-        normalized = normalize_resident_text(raw, "en-SG")
-        self.assertIn("low mood", normalized.lower())
-        self.assertIn("overwhelmed", normalized.lower())
-        self.assertNotIn("sian", normalized.lower())
-        self.assertNotIn("buay tahan", normalized.lower())
-
-    def test_replaces_au_culture_terms(self) -> None:
-        raw = "Been a bit flat and crook this week."
-        normalized = normalize_resident_text(raw, "en-AU")
-        self.assertIn("low mood", normalized.lower())
-        self.assertIn("unwell", normalized.lower())
-        self.assertNotIn("flat", normalized.lower())
-        self.assertNotIn("crook", normalized.lower())
-
-    def test_longest_phrase_wins(self) -> None:
-        raw = "Feeling a bit flat today."
-        normalized = normalize_resident_text(raw, "en-AU")
-        self.assertIn("low mood", normalized.lower())
-        self.assertNotIn("bit flat", normalized.lower())
-
-    def test_unknown_locale_returns_unchanged(self) -> None:
-        raw = "Hello there."
-        self.assertEqual(normalize_resident_text(raw, "en-XX"), raw)
-
-
 class FormatTranscriptForAnalystTests(unittest.TestCase):
-    def test_labels_resident_lines_with_raw_text_and_vocab(self) -> None:
+    def test_labels_resident_lines_with_raw_text(self) -> None:
         transcript = [
             {"role": "companion", "text": "How are you?"},
             {
@@ -86,19 +57,10 @@ class FormatTranscriptForAnalystTests(unittest.TestCase):
         formatted = format_transcript_for_analyst(transcript)
         self.assertIn("**Companion:** How are you?", formatted)
         self.assertIn("**Resident [R1]:** Very sian lately.", formatted)
-        self.assertIn("Local vocabulary (matched this turn):", formatted)
-        self.assertIn("sian → Low mood; tired of things.", formatted)
-
-    def test_omits_vocab_block_when_not_stored_on_turn(self) -> None:
-        transcript = [
-            {
-                "role": "resident",
-                "text": "Very sian lately.",
-            }
-        ]
-        formatted = format_transcript_for_analyst(transcript)
-        self.assertIn("**Resident [R1]:** Very sian lately.", formatted)
+        # Per-turn vocab notes are no longer inlined — the full glossary lives in the analyst
+        # system prompt instead. Any vocab_matches stored on a turn must not leak into the text.
         self.assertNotIn("Local vocabulary (matched this turn):", formatted)
+        self.assertNotIn("sian \u2192 Low mood", formatted)
 
     def test_numbers_multiple_resident_turns(self) -> None:
         transcript = [

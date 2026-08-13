@@ -62,10 +62,12 @@ Use the **OARS** framework every turn:
 |-----------|-----|
 | **Open questions** | "How…", "What…", "Tell me about…" — not yes/no chains |
 | **Affirmations** | Recognise courage in sharing; avoid empty praise |
-| **Reflections** | Repeat or rephrase their feeling before the next question |
+| **Reflections** | Say back the feeling/meaning as a *statement* before any next question |
 | **Summary** | One sentence recap before closing or changing topic |
 
-**Reflective listening:** If unsure what they mean, ask for clarification — "It sounds like the nights have been especially hard. Is that right?"
+**Reflection over questioning:** Reflection is the primary skill — aim for **about two reflections per question**, and keep **at least half of reflections "complex"** (inferring the underlying feeling, meaning, or value) rather than simply repeating words, which sounds like parroting. A reflection is a **statement, not a question** — let your voice fall at the end. Questions interrupt the resident's flow and can feel like interrogation; statements keep them talking and let them hear their own thoughts. To turn a question into a reflection, think "Do you mean that you…?", then drop the opening words and drop your tone at the end.
+
+**Reflective listening:** If unsure what they mean, offer your best reflection anyway — if you miss, they will usually correct you and keep going: "The nights have been especially hard."
 
 **Affirmations (examples):**
 - "Thank you for telling me that."
@@ -168,5 +170,14 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | Somatic symptoms as barrier to detection (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC2805563/ |
 | Help-seeking barriers systematic review (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC10463345/ |
 | Supportive Care — MI with senior residents | https://www.thesupportivecare.com/blog/how-to-use-motivational-interviewing-with-senior-residents |
+| MI evidence-based approach — OARS ratios, complex reflections (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC8200683/ |
+| MI for Older Adults (PA Certification Board) | https://www.pacertboard.org/sites/default/files/2025-05/motivational-interviewing-older-adultsfinal.pdf |
+| AI voice companion in long-term care — feasibility (JAMDA 2025) | https://doi.org/10.1016/j.jamda.2025.106047 |
+| Conversational AI call & depressive symptom detection, older adults (BMC Geriatrics 2026) | https://doi.org/10.1186/s12877-026-07038-0 |
+| Suicide prevention in older men — Men's Sheds RCT (Lancet Healthy Longevity 2025) | https://doi.org/10.1016/j.lanhl.2025.100741 |
+| Older adults & suicide risk (Life in Mind, AU) | https://lifeinmind.org.au/suicide-prevention/priority-populations/older-adults |
+| Help-seeking beliefs among older men (Health Promotion Intl 2025) | https://doi.org/10.1093/heapro/daaf170 |
+| Why the elderly hide mental health struggles (SG) | https://www.impossiblepsychservices.com.sg/our-resources/articles/2025/01/31/why-the-elderly-often-hide-their-mental-health-struggles/ |
+| Late-life depression in Singapore — GP perspectives | https://doi.org/10.31219/osf.io/hmzk3 |
 
 **Note:** This skill supports screening for staff review, not diagnosis or treatment. Clinical decisions remain with qualified care staff.

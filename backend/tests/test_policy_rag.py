@@ -3,13 +3,12 @@ import unittest
 from unittest.mock import patch
 
 from backend.rag.policy.chunking import chunk_markdown, iter_policy_sections
-from backend.rag.policy.section_meta import parse_section_directive, resolve_section_meta, strip_section_directives
+from backend.rag.policy.section_meta import parse_section_directive, resolve_section_pathway, strip_section_directives
 from backend.rag.policy.validate import validate_policy_markdown
 from backend.rag.policy.routing import (
     PATHWAY_ACTIVE,
-    PATHWAY_DOMAIN,
+    PATHWAY_GENERAL,
     PATHWAY_PASSIVE,
-    PATHWAY_ROUTINE,
     parse_policy_summary,
     pathways_for_summary,
     section_pathway,
@@ -20,30 +19,28 @@ from backend.rag.policy.convert import check_conversion_coverage
 
 
 class TestSectionMeta(unittest.TestCase):
-    def test_parse_pathway_and_retrievable(self):
-        meta = parse_section_directive("<!-- pathway: passive_safety | retrievable: true -->")
+    def test_parse_pathway(self):
+        meta = parse_section_directive("<!-- pathway: passive_safety -->")
         self.assertIsNotNone(meta)
         assert meta is not None
         self.assertEqual(meta.pathway, PATHWAY_PASSIVE)
-        self.assertTrue(meta.retrievable)
 
-    def test_reference_not_retrieved(self):
-        meta = parse_section_directive("<!-- reference: not retrieved -->")
+    def test_legacy_retrievable_kv_is_ignored(self):
+        # Older docs may still carry `| retrievable: ...`; the pathway must still parse.
+        meta = parse_section_directive("<!-- pathway: passive_safety | retrievable: false -->")
         self.assertIsNotNone(meta)
         assert meta is not None
-        self.assertFalse(meta.retrievable)
+        self.assertEqual(meta.pathway, PATHWAY_PASSIVE)
 
     def test_strip_directives_from_body(self):
-        raw = "<!-- pathway: routine | retrievable: true -->\n## Routine\n\nFollow up within 48 hours."
+        raw = "<!-- pathway: routine -->\n## Routine\n\nFollow up within 48 hours."
         cleaned = strip_section_directives(raw)
         self.assertNotIn("<!--", cleaned)
         self.assertIn("Follow up within 48 hours", cleaned)
 
     def test_resolve_uses_explicit_pathway(self):
-        content = "<!-- pathway: active_safety | retrievable: true -->\n## Custom section\n\nSteps here."
-        pathway, retrievable = resolve_section_meta("Custom section", content)
-        self.assertEqual(pathway, PATHWAY_ACTIVE)
-        self.assertTrue(retrievable)
+        content = "<!-- pathway: active_safety -->\n## Custom section\n\nSteps here."
+        self.assertEqual(resolve_section_pathway("Custom section", content), PATHWAY_ACTIVE)
 
 
 class TestPolicyEmbedText(unittest.TestCase):
@@ -57,7 +54,8 @@ class TestPolicyEmbedText(unittest.TestCase):
 Screen-positive pattern applies."""
         embed = build_embed_text("Routine follow-up actions", body)
         self.assertIn("Routine follow-up actions", embed)
-        self.assertIn("escalation_pathway: routine", embed)
+        # Non-safety sections are labelled 'general' now.
+        self.assertIn("escalation_pathway: general", embed)
         self.assertNotIn("| `none` |", embed)
         self.assertIn("Screen-positive pattern", embed)
 
@@ -77,17 +75,17 @@ Screen-positive pattern applies."""
         chunks = chunk_markdown(md, source="test.md", doc_type="facility_policy", locale="en-AU")
         self.assertEqual(len(chunks), 1)
         self.assertIn("embed_text", chunks[0])
-        self.assertEqual(chunks[0]["metadata"]["pathway"], PATHWAY_ROUTINE)
+        self.assertEqual(chunks[0]["metadata"]["pathway"], PATHWAY_GENERAL)
 
-    def test_skips_non_retrievable_sections(self):
+    def test_indexes_all_sections(self):
         md = """# Policy
 
-<!-- pathway: reference | retrievable: false -->
+<!-- pathway: reference -->
 ## Scope and use
 
-Short reference-only section that should not be indexed for RAG retrieval at analyst exit because it is governance prose only.
+Reference/governance prose that is now indexed for retrieval like every other section.
 
-<!-- pathway: routine | retrievable: true -->
+<!-- pathway: routine -->
 ## Routine follow-up actions
 
 | Analyst `recommendation` | Facility action |
@@ -95,12 +93,15 @@ Short reference-only section that should not be indexed for RAG retrieval at ana
 | `none` | No mandatory follow-up for residents with adequate screening and no meaningful concerns identified during the session. |
 """
         sections = iter_policy_sections(md, locale="en-AU")
+        self.assertNotIn("retrievable", sections[0])
         scope = next(s for s in sections if s["section"] == "Scope and use")
-        self.assertFalse(scope["retrievable"])
+        # 'reference' is no longer a valid pathway — non-safety sections are 'general'.
+        self.assertEqual(scope["pathway"], PATHWAY_GENERAL)
 
         chunks = chunk_markdown(md, source="test.md", doc_type="facility_policy", locale="en-AU")
-        self.assertEqual(len(chunks), 1)
-        self.assertEqual(chunks[0]["metadata"]["section"], "Routine follow-up actions")
+        indexed = {c["metadata"]["section"] for c in chunks}
+        self.assertIn("Scope and use", indexed)
+        self.assertIn("Routine follow-up actions", indexed)
 
 
 class TestPolicyValidation(unittest.TestCase):
@@ -151,8 +152,9 @@ When recommendation is check_in or visit_soon without safety flags, use domain e
     def test_valid_minimal_policy(self):
         result = validate_policy_markdown(self._minimal_valid(), locale="en-AU")
         self.assertTrue(result.ok, result.errors)
-        self.assertIn("Routine follow-up actions", result.retrievable_sections)
-        self.assertIn("Scope and use", result.skipped_sections)
+        # Every section is now indexed, including the reference "Scope and use".
+        self.assertIn("Routine follow-up actions", result.indexed_sections)
+        self.assertIn("Scope and use", result.indexed_sections)
 
     def test_missing_passive_fails(self):
         text = self._minimal_valid()
@@ -234,52 +236,44 @@ Follow up within 48 hours for any resident with a check_in recommendation and do
 class TestPolicyRouting(unittest.TestCase):
     def test_parse_policy_summary(self):
         tags = parse_policy_summary(
-            "recommendation_target: none\npassive_suicidal_thoughts: false\n"
+            "passive_suicidal_thoughts: false\nactive_suicidal_ideation: true\n"
         )
-        self.assertEqual(tags["recommendation_target"], "none")
         self.assertEqual(tags["passive_suicidal_thoughts"], "false")
+        self.assertEqual(tags["active_suicidal_ideation"], "true")
 
-    def test_routine_none_excludes_safety_pathways(self):
+    def test_no_safety_cue_returns_none(self):
         tags = parse_policy_summary(
-            """recommendation_target: none
-passive_suicidal_thoughts: false
-active_suicidal_ideation: false
-escalation_pathway: routine"""
+            """passive_suicidal_thoughts: false
+active_suicidal_ideation: false"""
         )
-        self.assertEqual(pathways_for_summary(tags), [PATHWAY_ROUTINE, PATHWAY_DOMAIN])
+        self.assertIsNone(pathways_for_summary(tags))
 
     def test_passive_pathway(self):
         tags = parse_policy_summary(
-            """recommendation_target: visit_soon
-passive_suicidal_thoughts: true
-active_suicidal_ideation: false
-escalation_pathway: passive_safety"""
+            """passive_suicidal_thoughts: true
+active_suicidal_ideation: false"""
         )
-        self.assertEqual(pathways_for_summary(tags), [PATHWAY_PASSIVE, PATHWAY_ROUTINE])
+        self.assertEqual(pathways_for_summary(tags), [PATHWAY_PASSIVE])
+
+    def test_active_pathway(self):
+        tags = parse_policy_summary(
+            """passive_suicidal_thoughts: false
+active_suicidal_ideation: true"""
+        )
+        self.assertEqual(pathways_for_summary(tags), [PATHWAY_ACTIVE])
+
+    def test_active_takes_precedence_over_passive(self):
+        tags = parse_policy_summary(
+            """passive_suicidal_thoughts: true
+active_suicidal_ideation: true"""
+        )
+        self.assertEqual(pathways_for_summary(tags), [PATHWAY_ACTIVE])
 
     def test_section_pathway_mapping(self):
         self.assertEqual(section_pathway("Passive safety escalation"), PATHWAY_PASSIVE)
-        self.assertEqual(section_pathway("Scope and use"), "reference")
-
-    def test_screen_positive_pattern_routes_domain(self):
-        tags = parse_policy_summary(
-            """recommendation_target: none
-passive_suicidal_thoughts: false
-active_suicidal_ideation: false
-escalation_pathway: routine
-screen_positive_pattern: true"""
-        )
-        self.assertEqual(pathways_for_summary(tags), [PATHWAY_DOMAIN, PATHWAY_ROUTINE])
-
-    def test_screen_positive_pattern_does_not_override_active_safety(self):
-        tags = parse_policy_summary(
-            """recommendation_target: urgent
-passive_suicidal_thoughts: false
-active_suicidal_ideation: true
-escalation_pathway: active_safety
-screen_positive_pattern: true"""
-        )
-        self.assertEqual(pathways_for_summary(tags), [PATHWAY_ACTIVE])
+        self.assertEqual(section_pathway("Active safety escalation"), PATHWAY_ACTIVE)
+        # Everything non-safety collapses to 'general'.
+        self.assertEqual(section_pathway("Scope and use"), PATHWAY_GENERAL)
 
 
 class TestSafetyGuaranteeInclude(unittest.TestCase):
@@ -317,10 +311,10 @@ class TestSafetyGuaranteeInclude(unittest.TestCase):
                     row("Passive safety escalation", PATHWAY_PASSIVE, 0.6),
                     row("Active safety escalation", PATHWAY_ACTIVE, 0.55),
                 ]
-            # Broad pass: routine/domain only — no active section semantically.
+            # Broad pass: general sections only — no active section semantically.
             return [
-                row("Routine follow-up actions", PATHWAY_ROUTINE, 0.7),
-                row("Domain-led follow-up (non-crisis)", PATHWAY_DOMAIN, 0.5),
+                row("Routine follow-up actions", PATHWAY_GENERAL, 0.7),
+                row("Domain-led follow-up (non-crisis)", PATHWAY_GENERAL, 0.5),
             ]
 
         class _Coll:
@@ -377,8 +371,8 @@ class TestSafetyGuaranteeInclude(unittest.TestCase):
                     row("Active safety escalation", PATHWAY_ACTIVE, 0.35),
                 ]
             return [
-                row("Routine follow-up actions", PATHWAY_ROUTINE, 0.9),
-                row("Domain-led follow-up (non-crisis)", PATHWAY_DOMAIN, 0.8),
+                row("Routine follow-up actions", PATHWAY_GENERAL, 0.9),
+                row("Domain-led follow-up (non-crisis)", PATHWAY_GENERAL, 0.8),
             ]
 
         class _Coll:
@@ -439,9 +433,23 @@ class TestConversionCoverage(unittest.TestCase):
 
 
 class TestSummaryContract(unittest.TestCase):
-    def test_prompt_requests_retrieval_focus_line(self):
+    def test_prompt_requests_retained_tags(self):
         self.assertIn("retrieval_focus:", SUMMARY_SYSTEM)
-        self.assertIn("screen_positive_pattern:", SUMMARY_SYSTEM)
+        self.assertIn("passive_suicidal_thoughts:", SUMMARY_SYSTEM)
+        self.assertIn("active_suicidal_ideation:", SUMMARY_SYSTEM)
+
+    def test_prompt_drops_trimmed_tags(self):
+        for dropped in (
+            "escalation_pathway:",
+            "recommendation_target:",
+            "suicide_risk_flag:",
+            "safety_discussed:",
+            "domains_with_concern:",
+            "domains_discussed:",
+            "screen_positive_pattern:",
+            "safety_note:",
+        ):
+            self.assertNotIn(dropped, SUMMARY_SYSTEM)
 
 
 if __name__ == "__main__":

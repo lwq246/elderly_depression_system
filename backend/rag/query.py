@@ -1,4 +1,4 @@
-"""Low-level Chroma cosine search shared by policy and vocab retrieval."""
+"""Low-level Chroma cosine search for facility policy retrieval."""
 
 from __future__ import annotations
 

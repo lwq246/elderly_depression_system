@@ -68,11 +68,12 @@ Many residents are **culturally and linguistically diverse** (NSW TMHC; RACGP Si
 
 ## Social norms
 
-Australian research: **stoicism**, **self-reliance**, and **visibility** in communities affect help-seeking (rural stoicism studies; older men's mental health research).
+Australian research: **stoicism**, **self-reliance**, and **restrictive emotionality** strongly reduce help-seeking (Lancet Healthy Longevity 2025; Life in Mind; rural stoicism studies). Older men — **especially 85+** — have the **highest suicide rate** of any group, and older men seek help at about **half** the rate of older women.
 
 - **Family** — children or grandkids interstate or overseas; loneliness when visits are rare
-- **Stoicism** — "she'll be right", "I'm fine", "don't get lonely" may hide distress; **one gentle probe**, then move on
+- **Stoicism is a cue, not reassurance** — "she'll be right", "I'm fine", "don't get lonely" often mask distress and can co-exist with high loneliness. Treat them as a signal to gently probe, not to move on. Do not close a flat or withdrawn session without a gentle safety check
 - **Men's presentation** — boredom, irritability, physical complaints before mood words — use somatic entry
+- **Being listened to helps** — older men disclose more when they feel genuinely heard and understood, not advised; lead with reflection over questions
 - **Somatic entry** — poor sleep or appetite may be easier than "feeling sad"
 - **Activity framing** — garden, morning tea, men's shed-style routines as natural probes (without claiming to be formal therapy)
 - **Privacy vs help** — some fear being "looked in on" in small communities; calm, non-judgmental tone

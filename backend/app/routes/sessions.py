@@ -1,7 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
 
-from backend.rag.vocab.retrieve import retrieve_vocabulary_for_companion, vocab_matches_from_hits
-
 from ..analyst import run_analyst
 from ..companion import generate_companion_reply
 from ..db import append_turn, create_session, end_session, get_session, list_sessions, save_report
@@ -82,14 +80,7 @@ async def session_message(session_id: str, body: MessageRequest, request: Reques
         raise HTTPException(status_code=400, detail="Session has ended")
 
     resident_text = body.text.strip()
-    vocab_hits = retrieve_vocabulary_for_companion(resident_text, locale=session["locale"])
-    vocab_matches = vocab_matches_from_hits(vocab_hits)
-    append_turn(
-        session_id,
-        "resident",
-        resident_text,
-        vocab_matches=vocab_matches,
-    )
+    append_turn(session_id, "resident", resident_text)
     session = get_session(session_id)
     assert session
 
@@ -108,7 +99,6 @@ async def session_message(session_id: str, body: MessageRequest, request: Reques
         session_id=session_id,
         locale=session["locale"],
         turn_count=len(session["transcript"]),
-        vocab_match_count=len(vocab_matches),
         companion_warning_count=len(warnings),
         companion_ms=span.get("duration_ms"),
     )

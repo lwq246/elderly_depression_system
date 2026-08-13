@@ -2,6 +2,16 @@ from pathlib import Path
 
 from .config import SKILLS_DIR
 
+# Screening-relevant sections pulled from culture-*/local-vocabulary.md and inlined into
+# the companion prompt (skip policy / local-light / sources — those are not runtime guidance).
+_COMPANION_VOCAB_SECTION_HEADINGS = (
+    "Words residents often use",
+    "Singlish particles",
+    "Mixed language",
+    "CALD caution",
+    "Men's / stoic presentation",
+)
+
 
 def _read(path: Path) -> str:
     if not path.is_file():
@@ -11,6 +21,34 @@ def _read(path: Path) -> str:
 
 def _culture_dir(locale: str) -> str:
     return "culture-en-SG" if locale == "en-SG" else "culture-en-AU"
+
+
+def _local_vocabulary_path(locale: str) -> Path:
+    return SKILLS_DIR / "screening-conversation" / _culture_dir(locale) / "local-vocabulary.md"
+
+
+def _extract_vocab_sections(vocab_md: str, section_headings: tuple[str, ...]) -> str:
+    lines = vocab_md.splitlines()
+    sections: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("## "):
+            heading = line[3:].strip()
+            if any(heading.startswith(title) for title in section_headings):
+                block = [line]
+                i += 1
+                while i < len(lines) and not lines[i].startswith("## "):
+                    block.append(lines[i])
+                    i += 1
+                sections.append("\n".join(block).strip())
+                continue
+        i += 1
+    return "\n\n".join(sections)
+
+
+def _extract_companion_vocabulary(vocab_md: str) -> str:
+    return _extract_vocab_sections(vocab_md, _COMPANION_VOCAB_SECTION_HEADINGS)
 
 
 _GREETINGS: dict[str, str] = {
@@ -33,24 +71,21 @@ def _culture_companion_path(locale: str) -> Path:
     return culture_dir / "SKILL.md"
 
 
-def load_companion_system_prompt(
-    locale: str,
-    *,
-    vocabulary_context: str = "",
-) -> str:
-    culture = _culture_dir(locale)
+def load_companion_system_prompt(locale: str) -> str:
     base_path = SKILLS_DIR / "screening-conversation" / "SKILL.md"
     base = _read(base_path)
     culture_skill = _read(_culture_companion_path(locale))
-    vocab_block = ""
-    if vocabulary_context.strip():
-        vocab_block = (
-            "\n\n---\n\n## Retrieved local vocabulary (this turn)\n\n"
-            "Use these meanings to understand the resident. Do not treat as clinical "
-            "terms, and do not force these words into your own reply.\n\n"
-            + vocabulary_context.strip()
-        )
-    return f"{base}\n\n---\n\n{culture_skill}{vocab_block}"
+
+    # Inline the full companion-relevant local vocabulary for this locale so the model always
+    # has the whole lexicon in context (no per-turn retrieval).
+    vocab_ref = ""
+    vocab_path = _local_vocabulary_path(locale)
+    if vocab_path.is_file():
+        extracted = _extract_companion_vocabulary(_read(vocab_path))
+        if extracted:
+            vocab_ref = f"\n\n---\n\n## Local vocabulary reference\n\n{extracted}"
+
+    return f"{base}\n\n---\n\n{culture_skill}{vocab_ref}"
 
 
 def _extract_domain_criteria(reference_md: str) -> str:
@@ -73,6 +108,19 @@ def load_analyst_system_prompt(locale: str = "en-SG") -> str:
         parts.append(domains)
     if examples_path.is_file():
         parts.append("## Reference examples\n\n" + _read(examples_path).strip())
+
+    # Inline the full local vocabulary for the locale (same approach as the companion) so the
+    # analyst can interpret culture-specific terms — no per-turn vocabulary retrieval needed.
+    vocab_path = _local_vocabulary_path(locale)
+    if vocab_path.is_file():
+        extracted = _extract_companion_vocabulary(_read(vocab_path))
+        if extracted:
+            parts.append(
+                "## Local vocabulary reference\n\n"
+                "Culture-specific terms the resident may use. Use only to interpret meaning; "
+                "evidence must cite resident line references (R1, R2, ...), never this glossary.\n\n"
+                + extracted
+            )
     return "\n\n---\n\n".join(parts)
 
 

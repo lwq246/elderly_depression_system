@@ -43,8 +43,8 @@ async def run_analyst(
     user = (
         "Analyze this screening transcript and respond with JSON only.\n"
         "Resident lines are verbatim and labelled [R1], [R2], ... "
-        "Local vocabulary notes (when present) explain culture-specific terms matched that turn — "
-        "use them for interpretation; evidence must still cite R1, R2, ... not the glossary text.\n"
+        "The 'Local vocabulary reference' in the system prompt explains culture-specific terms — "
+        "use it for interpretation; evidence must still cite R1, R2, ... not the glossary text.\n"
         "For each topic with concern, set evidence to the resident line reference only "
         '(e.g. "R1", "R2") — not a direct quote.\n\n'
         + format_transcript_for_analyst(transcript)

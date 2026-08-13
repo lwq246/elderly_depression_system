@@ -14,10 +14,8 @@ sys.path.insert(0, str(ROOT))
 from backend.app.config import settings
 from backend.rag.store import (
     POLICY_COLLECTION_NAME,
-    VOCAB_COLLECTION_NAME,
     collection_counts,
     get_policy_collection,
-    get_vocab_collection,
 )
 
 
@@ -99,16 +97,6 @@ def fetch_chunks(
                 term=term,
             )
         )
-    if doc_type in (None, "culture_vocabulary"):
-        rows.extend(
-            _fetch_from_collection(
-                get_vocab_collection(),
-                collection_name=VOCAB_COLLECTION_NAME,
-                locale=locale,
-                section=section,
-                term=term,
-            )
-        )
     return rows
 
 
@@ -127,7 +115,6 @@ def inspect_index(
         print("Chroma collections are empty.")
         print(f"Chroma path: {settings.rag_chroma_path}")
         print(f"  {POLICY_COLLECTION_NAME}: 0")
-        print(f"  {VOCAB_COLLECTION_NAME}: 0")
         print("Run: C:/Python314/python.exe backend/rag/ingest.py --reset")
         return 1
 
@@ -156,7 +143,6 @@ def inspect_index(
                     "path": settings.rag_chroma_path,
                     "collections": {
                         POLICY_COLLECTION_NAME: counts["policy"],
-                        VOCAB_COLLECTION_NAME: counts["vocabulary"],
                     },
                     "matched": len(payload),
                     "chunks": payload,
@@ -168,7 +154,6 @@ def inspect_index(
 
     print(f"Chroma path: {settings.rag_chroma_path}")
     print(f"  {POLICY_COLLECTION_NAME}: {counts['policy']} chunks")
-    print(f"  {VOCAB_COLLECTION_NAME}: {counts['vocabulary']} chunks")
     print(f"Matched: {len(rows)}")
     print()
 
@@ -194,8 +179,8 @@ def main() -> None:
     parser.add_argument(
         "--type",
         dest="doc_type",
-        choices=("facility_policy", "culture_vocabulary"),
-        help="Which collection to show (default: both)",
+        choices=("facility_policy",),
+        help="Which collection to show",
     )
     parser.add_argument("--locale", help="Locale filter (e.g. en-SG, en-AU)")
     parser.add_argument("--section", help="Exact section heading filter")

@@ -8,8 +8,6 @@ export interface Resident {
 export interface TranscriptTurn {
   role: "companion" | "resident";
   text: string;
-  /** Glossary term/meaning pairs matched on this resident turn (for analyst). */
-  vocab_matches?: Array<{ term: string; meaning: string }>;
   at: string;
 }
 

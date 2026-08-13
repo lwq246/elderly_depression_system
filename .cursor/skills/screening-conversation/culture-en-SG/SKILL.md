@@ -68,10 +68,12 @@ Singapore NH research highlights **language diversity** (English, Mandarin, Mala
 
 ## Social norms
 
-Research on Singapore seniors: **stigma**, **face**, and **fear of burdening children** reduce help-seeking (MOH surveys; CNA commentary).
+Research on Singapore seniors: **stigma**, **face**, and **fear of burdening children** reduce help-seeking (MOH surveys; CNA commentary; IMH studies). SG seniors are the **age group least likely** to seek mental-health help — many "grin and bear it" and equate needing help with weakness.
 
+- **Do not expect disclosure** — they rarely volunteer distress; you lead gently and read somatic and daily-life cues
 - **Family** — children and grandchildren visits matter; ask gently about weekend or holiday visits
 - **"Don't want to burden my children"** — very common; reflect without dismissing: "You care about them a lot."
+- **Validation opens the door** — naming and accepting the feeling ("That sounds really tiring") builds enough trust for honest answers; quick reassurance closes it down
 - **Face and privacy** — if embarrassed, do not press; one gentle alternative question, then move on
 - **Avoid quick reassurance** — prefer curiosity and empathy over "you'll be fine"
 - **Religious routines** — prayer, temple, church, mosque — valid positive anchors (Joy in Living / spiritual care research)

@@ -20,7 +20,6 @@ from backend.rag.store import (
     get_client,
     get_policy_collection,
 )
-from backend.rag.vocab.data import vocabulary_locales
 
 
 def _upsert_chunks(collection, chunks: list[dict]) -> None:
@@ -89,11 +88,6 @@ def ingest_all(*, reset: bool = False, doc_ids: list[str] | None = None) -> int:
             delete_doc(doc_id, collection=policy_collection)
         policy_chunks.extend(chunks)
         print(f"  {rel}: {len(chunks)} facility policy chunks ({meta['locale']})")
-
-    vocab_locales = vocabulary_locales()
-    print(
-        f"  culture-vocabulary: local glossary only ({', '.join(vocab_locales)} — not ingested)"
-    )
 
     if not policy_chunks:
         print("No policy chunks to ingest.")

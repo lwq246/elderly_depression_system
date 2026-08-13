@@ -24,12 +24,12 @@ REPORT_PATH = ROOT / "data" / "ingestion_test_results.md"
 
 _DIRECTIVE_FIXTURE = """# Test policy
 
-<!-- pathway: reference | retrievable: false -->
+<!-- pathway: reference -->
 ## Scope and use
 
-Reference-only governance text that is intentionally longer than the minimum chunk size so validation passes without indexing this section into the operational RAG index for analyst retrieval.
+Reference/governance text that is now indexed for retrieval like every other section.
 
-<!-- pathway: routine | retrievable: true -->
+<!-- pathway: routine -->
 ## Routine follow-up actions
 
 | Analyst `recommendation` | Facility action |
@@ -76,7 +76,7 @@ def _run_ing01() -> IngestionTestResult:
         title="Chunk en-SG.md for ingest",
         passed=len(chunks) >= 5,
         input_summary=f"Source: `{path.relative_to(ROOT)}` ({len(text)} chars)",
-        output_summary=f"{len(chunks)} retrievable chunks: {', '.join(sections)}",
+        output_summary=f"{len(chunks)} chunks: {', '.join(sections)}",
     )
 
 
@@ -90,7 +90,7 @@ def _run_ing02() -> IngestionTestResult:
         title="Chunk en-AU.md for ingest",
         passed=len(chunks) >= 10,
         input_summary=f"Source: `{path.relative_to(ROOT)}` ({len(text)} chars)",
-        output_summary=f"{len(chunks)} retrievable chunks; pathways: {', '.join(pathways)}",
+        output_summary=f"{len(chunks)} chunks; pathways: {', '.join(pathways)}",
     )
 
 
@@ -130,22 +130,22 @@ def _run_ing05() -> IngestionTestResult:
         locale="en-AU",
     )
     sections = [c["metadata"]["section"] for c in chunks]
-    skipped_scope = "Scope and use" not in sections
+    has_scope = "Scope and use" in sections
     has_routine = "Routine follow-up actions" in sections
     return IngestionTestResult(
         case_id="ING-05",
-        title="Directive retrievable:false skips Scope",
-        passed=skipped_scope and has_routine and len(chunks) == 1,
-        input_summary="Fixture with `retrievable: false` on Scope, `true` on Routine",
+        title="All directive sections are indexed",
+        passed=has_scope and has_routine and len(chunks) == 2,
+        input_summary="Fixture with `pathway: reference` on Scope and `pathway: routine` on Routine",
         output_summary=f"Chunks indexed: {sections}",
     )
 
 
 def _run_ing06() -> IngestionTestResult:
     body = "| col | val |\n|-----|-----|\n| `none` | No follow-up |\n\nNarrative prose for embedding."
-    embed = build_embed_text("Routine follow-up actions", body, pathway="routine")
+    embed = build_embed_text("Routine follow-up actions", body, pathway="general")
     no_table = "|" not in embed
-    has_pathway = "escalation_pathway: routine" in embed
+    has_pathway = "escalation_pathway: general" in embed
     return IngestionTestResult(
         case_id="ING-06",
         title="embed_text strips tables, keeps prose",
@@ -201,7 +201,7 @@ def _run_ing08() -> IngestionTestResult:
 
 def _run_ing09() -> IngestionTestResult:
     rows = fetch_chunks(doc_type="facility_policy")
-    required = {"routine", "passive_safety", "active_safety"}
+    required = {"passive_safety", "active_safety"}
     pathways = {meta.get("pathway") for _, _, meta, _ in rows}
     missing = required - pathways
     return IngestionTestResult(

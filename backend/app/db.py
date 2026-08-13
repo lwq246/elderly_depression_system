@@ -207,8 +207,6 @@ def append_turn(
     session_id: str,
     role: str,
     text: str,
-    *,
-    vocab_matches: list[dict[str, str]] | None = None,
 ) -> dict[str, Any] | None:
 
     session = get_session(session_id)
@@ -220,8 +218,6 @@ def append_turn(
     transcript = session["transcript"]
 
     turn: dict[str, Any] = {"role": role, "text": text, "at": _utc_now()}
-    if vocab_matches:
-        turn["vocab_matches"] = vocab_matches
     transcript.append(turn)
 
     with get_conn() as conn:

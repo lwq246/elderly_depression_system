@@ -25,9 +25,9 @@ Formatting you MAY do:
 - Normalize heading levels: '##' for main sections, '###' for subsections, using the source's own wording. If a block of text has no heading, add a short heading built from that block's own words.
 - Add blank lines around paragraphs, lists, and tables so sections chunk cleanly. Split very long paragraphs at natural sentence boundaries (no wording changes).
 - Keep tables as markdown tables.
-- Before each '##' section add ONE directive line on its own line:
-  <!-- pathway: <routine|domain_follow_up|passive_safety|active_safety|reference> | retrievable: <true|false> -->
-  Choose the pathway by the section's purpose. Set retrievable: false only for reference/background prose (scope, documentation, governance); set retrievable: true for operational follow-up and escalation content.
+- Only for a SAFETY section (suicidal-thoughts escalation, crisis/means, emergency contacts) add ONE directive line on its own line immediately before the '##' heading:
+  <!-- pathway: <passive_safety|active_safety> -->
+  Use passive_safety for passive suicidal-thoughts escalation and active_safety for active ideation / means / crisis. Do NOT add a directive to any other section — every section is indexed for retrieval; non-safety sections are labelled 'general' automatically.
 - Output markdown only — no JSON, no code fences around the whole document."""
 
 
@@ -74,6 +74,11 @@ def _numbers(text: str) -> set[str]:
     return {match.replace(" ", "") for match in _NUMBER_RE.findall(text)}
 
 
+def _all_digits(text: str) -> str:
+    """Every digit in the text, concatenated — grouping/spacing removed."""
+    return "".join(re.findall(r"\d", text))
+
+
 @dataclass
 class CoverageResult:
     ok: bool
@@ -87,7 +92,15 @@ def check_conversion_coverage(source_text: str, converted_text: str) -> Coverage
     src_len = _content_length(source_text) or 1
     ratio = _content_length(converted_text) / src_len
 
-    missing = sorted(_numbers(source_text) - _numbers(converted_text))
+    # A source number counts as present if it appears either as its own digit-run OR as a
+    # substring of all output digits — so reformatting a phone number's grouping (e.g.
+    # "(08) 8419 2000" -> "08 8419 2000") is not flagged as loss. Genuine bulk content loss
+    # is still caught by the ratio check below.
+    out_runs = _numbers(converted_text)
+    out_digits = _all_digits(converted_text)
+    missing = sorted(
+        n for n in _numbers(source_text) if n not in out_runs and n not in out_digits
+    )
 
     errors: list[str] = []
     if ratio < MIN_CONTENT_RATIO:

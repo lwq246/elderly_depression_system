@@ -5,7 +5,9 @@ import chromadb
 from backend.app.config import settings
 
 POLICY_COLLECTION_NAME = "screening-facility-policy"
-VOCAB_COLLECTION_NAME = "screening-culture-vocabulary"
+# Standalone reference material (e.g. the RASA mental-health toolkit) kept in its own
+# collection so it never mixes with facility-policy retrieval and survives policy --reset.
+TOOLKIT_COLLECTION_NAME = "screening-mh-toolkit"
 # Legacy single-collection name (pre-split); deleted on ingest --reset.
 LEGACY_COLLECTION_NAME = POLICY_COLLECTION_NAME
 
@@ -26,19 +28,19 @@ def get_policy_collection(client: chromadb.PersistentClient | None = None):
     )
 
 
-def get_vocab_collection(client: chromadb.PersistentClient | None = None):
+def get_toolkit_collection(client: chromadb.PersistentClient | None = None):
     client = client or get_client()
     return client.get_or_create_collection(
-        name=VOCAB_COLLECTION_NAME,
+        name=TOOLKIT_COLLECTION_NAME,
         metadata=_COSINE,
     )
 
 
 def get_collection_for_type(doc_type: str):
-    if doc_type == "culture_vocabulary":
-        return get_vocab_collection()
     if doc_type == "facility_policy":
         return get_policy_collection()
+    if doc_type == "mh_toolkit":
+        return get_toolkit_collection()
     raise ValueError(f"Unknown doc_type: {doc_type}")
 
 
@@ -53,8 +55,8 @@ def delete_all_collections(client: chromadb.PersistentClient | None = None) -> N
     for name in (
         "screening-rubric",
         "screening-policy",
+        "screening-culture-vocabulary",
         POLICY_COLLECTION_NAME,
-        VOCAB_COLLECTION_NAME,
     ):
         try:
             client.delete_collection(name)
@@ -65,10 +67,9 @@ def delete_all_collections(client: chromadb.PersistentClient | None = None) -> N
 def collection_counts() -> dict[str, int]:
     try:
         policy = get_policy_collection().count()
-        vocab = get_vocab_collection().count()
     except Exception:
-        return {"policy": 0, "vocabulary": 0, "total": 0}
-    return {"policy": policy, "vocabulary": vocab, "total": policy + vocab}
+        return {"policy": 0, "total": 0}
+    return {"policy": policy, "total": policy}
 
 
 def collection_count() -> int:

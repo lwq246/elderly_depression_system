@@ -23,7 +23,8 @@ class Settings(BaseSettings):
     database_path: str = str(DATA_DIR / "screening.db")
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
     companion_history_turns: int = 12
-    # RAG — analyst facility policy (ingest.py); companion vocab uses local glossary literal match
+    # RAG — analyst facility policy only (ingest.py). Local culture vocabulary is inlined into
+    # the companion/analyst prompts from local-vocabulary.md, not retrieved.
     rag_enabled: bool = False
     rag_chroma_path: str = str(DATA_DIR / "rag" / "chroma")
     rag_top_k: int = 3
@@ -42,19 +43,12 @@ class Settings(BaseSettings):
     rag_default_facility_id: str = "default"
     # Comma-separated facility-policy locales to ingest (e.g. en-AU only)
     rag_index_locales: str = "en-AU"
-    # Companion per-turn vocabulary RAG tuning (backend/rag/vocab/data.py → Chroma)
-    rag_vocab_top_k: int = 20
-    rag_vocab_locales: str = "en-SG,en-AU"
     # Record full LLM system/user prompts on session (test/debug; off in production)
     capture_llm_inputs: bool = False
 
     @property
     def rag_index_locale_list(self) -> list[str]:
         return [x.strip() for x in self.rag_index_locales.split(",") if x.strip()]
-
-    @property
-    def rag_vocab_locale_list(self) -> list[str]:
-        return [x.strip() for x in self.rag_vocab_locales.split(",") if x.strip()]
 
     @property
     def use_openai(self) -> bool:

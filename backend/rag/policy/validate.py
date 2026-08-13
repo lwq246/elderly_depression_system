@@ -5,16 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from backend.rag.policy.chunking import MIN_CHUNK_CHARS, iter_policy_sections
-from backend.rag.policy.routing import (
-    PATHWAY_ACTIVE,
-    PATHWAY_DOMAIN,
-    PATHWAY_PASSIVE,
-    PATHWAY_ROUTINE,
-)
+from backend.rag.policy.chunking import iter_policy_sections
+from backend.rag.policy.routing import PATHWAY_ACTIVE, PATHWAY_PASSIVE
 
-REQUIRED_RETRIEVABLE_PATHWAYS = {PATHWAY_ROUTINE, PATHWAY_PASSIVE, PATHWAY_ACTIVE}
-RECOMMENDED_RETRIEVABLE_PATHWAYS = {PATHWAY_DOMAIN}
+REQUIRED_PATHWAYS = {PATHWAY_PASSIVE, PATHWAY_ACTIVE}
 VALID_LOCALES = {"en-AU", "en-SG"}
 
 
@@ -23,8 +17,7 @@ class ValidationResult:
     ok: bool
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
-    retrievable_sections: list[str] = field(default_factory=list)
-    skipped_sections: list[str] = field(default_factory=list)
+    indexed_sections: list[str] = field(default_factory=list)
 
 
 def _infer_locale(text: str, path: Path | None) -> str | None:
@@ -60,25 +53,12 @@ def validate_policy_markdown(
         errors.append("no ## sections found")
         return ValidationResult(ok=False, errors=errors, warnings=warnings)
 
-    retrievable = [s for s in sections if s["retrievable"]]
-    skipped = [s["section"] for s in sections if not s["retrievable"]]
-    retrievable_names = [s["section"] for s in retrievable]
-    pathways = {s["pathway"] for s in retrievable}
+    indexed_names = [s["section"] for s in sections]
+    pathways = {s["pathway"] for s in sections}
 
-    for section in retrievable:
-        if section["char_count"] < MIN_CHUNK_CHARS:
-            errors.append(
-                f"retrievable section too short ({section['char_count']} chars, "
-                f"min {MIN_CHUNK_CHARS}): {section['section']}"
-            )
-
-    missing_required = REQUIRED_RETRIEVABLE_PATHWAYS - pathways
+    missing_required = REQUIRED_PATHWAYS - pathways
     for pathway in sorted(missing_required):
-        errors.append(f"missing required retrievable pathway: {pathway}")
-
-    missing_recommended = RECOMMENDED_RETRIEVABLE_PATHWAYS - pathways
-    for pathway in sorted(missing_recommended):
-        warnings.append(f"missing recommended retrievable pathway: {pathway}")
+        errors.append(f"missing required pathway: {pathway}")
 
     if "UNVERIFIED" in text:
         warnings.append("document contains UNVERIFIED markers — review before ingest")
@@ -90,19 +70,15 @@ def validate_policy_markdown(
         ok=not errors,
         errors=errors,
         warnings=warnings,
-        retrievable_sections=retrievable_names,
-        skipped_sections=skipped,
+        indexed_sections=indexed_names,
     )
 
 
 def format_validation_report(result: ValidationResult) -> str:
     lines = ["Policy validation: " + ("PASS" if result.ok else "FAIL")]
-    if result.retrievable_sections:
-        lines.append(f"Retrievable sections ({len(result.retrievable_sections)}): "
-                     + ", ".join(result.retrievable_sections))
-    if result.skipped_sections:
-        lines.append(f"Skipped sections ({len(result.skipped_sections)}): "
-                     + ", ".join(result.skipped_sections))
+    if result.indexed_sections:
+        lines.append(f"Indexed sections ({len(result.indexed_sections)}): "
+                     + ", ".join(result.indexed_sections))
     for msg in result.errors:
         lines.append(f"ERROR: {msg}")
     for msg in result.warnings:

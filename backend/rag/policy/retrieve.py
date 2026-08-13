@@ -97,9 +97,14 @@ async def _retrieve_by_tags(
         return RagRetrievalResult(chunks=[], summary_failed=True)
 
     merged: dict[str, dict[str, Any]] = {}
-    query = build_facility_policy_query(summary)
-    embedding = embed_texts([query])[0]
     tags = parse_policy_summary(summary)
+    # Embed ONLY the natural-language retrieval_focus line — it is written to read like the
+    # SOP section we want to match. The machine tag lines (booleans/enums) are decision flags,
+    # not search text, and only add noise to the query vector. Fall back to the full summary
+    # if the focus line is ever missing.
+    focus = tags.get("retrieval_focus", "").strip()
+    query = build_facility_policy_query(focus or summary)
+    embedding = embed_texts([query])[0]
     pathways = pathways_for_summary(tags)
     pool = settings.rag_top_k
 

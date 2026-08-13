@@ -42,20 +42,20 @@ C:\Python314\python.exe C:\Users\leewe\Documents\CursorDepression\backend\rag\in
 
 ## Section directives
 
-Each `##` section may include an HTML comment before the heading:
+Every section is indexed for retrieval. Only the two **safety** sections need a directive —
+it marks them as the crisis protocol for the retrieval guarantee-include. Every other section
+is labelled `general` automatically and needs no directive.
 
 ```markdown
-<!-- pathway: routine | retrievable: true -->
-## Routine follow-up actions
+<!-- pathway: passive_safety -->
+## Passive safety escalation
 ```
 
 | Pathway | Use |
 |---------|-----|
-| `routine` | Recommendation → facility action timeframes |
-| `domain_follow_up` | Non-crisis domain-led nurse prompts |
-| `passive_safety` | Passive suicidal thoughts pathway |
-| `active_safety` | Active ideation / means / crisis |
-| `reference` | Governance prose — set `retrievable: false` to skip RAG |
+| `passive_safety` | Passive suicidal thoughts pathway (guarantee-included) |
+| `active_safety` | Active ideation / means / crisis (guarantee-included) |
+| `general` | Everything else — no directive needed; retrieved by relevance |
 
 Reformat a raw policy with `backend/rag/convert_policy.py convert` — a content-preserving pass that adds these directives and is checked for content loss (`check_conversion_coverage`).
 
