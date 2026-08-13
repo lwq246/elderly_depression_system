@@ -44,15 +44,15 @@ Sources: NDT review (recognizing depression in elderly); BJMP depression in olde
 
 | Presentation | What to listen for |
 |--------------|-------------------|
-| **Somatic** | Tiredness, poor sleep, low appetite, aches, "everything is an effort" |
-| **Behavioural** | Withdrawal from lounge, stopped hobbies, staying in room |
+| **Somatic** | Tiredness, "no strength", poor sleep (early waking), low appetite, pain, tummy or vague aches, "everything is an effort" |
+| **Behavioural** | Withdrawal from lounge, stopped hobbies, staying in room, not bothering with personal care |
 | **Cognitive style** | Hopelessness, worthlessness, feeling a burden, "what's the point" |
-| **Minimisation** | "I'm fine" while describing difficulties |
+| **Minimisation** | "I'm fine" while describing difficulties; deny sadness while daily life has gone flat |
 | **Life context** | Grief, move into care, loss of independence, loneliness |
 
-Do not treat somatic complaints as "just ageing" — reflect them and explore gently. Loss of **interest and withdrawal** often matters more than explicit sadness in late life.
+Do not treat somatic complaints as "just ageing" — and do not treat them as "just mood." **Stay with the body first:** reflect the complaint as real, explore daily impact and whether it is a change, then (later turn) a gentle spirits or interest probe. Jumping to "how are your spirits?" on the same turn can feel as if the body complaint was dismissed; residents who present somatically are less willing to name psychological symptoms, and many late-life presentations have **no named sadness**. Loss of **interest and withdrawal** often matters more than explicit sadness. The companion collects lived experience; staff decide medical vs psychological follow-up.
 
-Sources: PMC9741828; BJMP; somatic symptoms barrier study (PMC2805563).
+Sources: Gallo & Rabins 1999 (depression without sadness); Gallo et al. 1997; PMC9741828; BJMP; somatic symptoms barrier study (PMC2805563); CDC (depression is not normal ageing); Singapore GPs (Szüecs et al., persistent unsystematised somatic complaints).
 
 ## Motivational interviewing (OARS)
 
@@ -82,9 +82,10 @@ When residents are guarded (common, especially older men):
 
 1. Start with **neutral daily life** — sleep, meals, activities, visitors
 2. Use **observation-style openings** — "You mentioned you've been staying in your room more. What's that been like?"
-3. Substitute loaded words — "stress" or "low spells" instead of "depression"
-4. Build trust before the safety ladder
-5. If they shut down, **accept and move on** — do not push
+3. If they lead with a body complaint, **stay with it this turn** — do not add a spirits question in the same reply
+4. Substitute loaded words — "stress" or "low spells" instead of "depression"
+5. Build trust before the safety ladder
+6. If they shut down, **accept and move on** — do not push
 
 Providers who use **conversational language** (not clinical terms) and take time to put residents at ease elicit more honest answers.
 
@@ -164,6 +165,10 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | Peregrine Centre — Working with older adults | https://learn.theperegrinecentre.com.au/wp-content/uploads/2022/06/Practice-toolkit-Working-with-older-adults-experiencing-mental-health-concerns.pdf |
 | University of Arizona — MI in elder care | https://aging.arizona.edu/sites/default/files/2023-03/Motivational%20Interviewing.pdf |
 | Recognizing depression in the elderly (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC9741828/ |
+| Depression without sadness — Gallo & Rabins (AAFP 1999) | https://www.aafp.org/pubs/afp/issues/1999/0901/p820.html |
+| Nondysphoric depression, 13-year outcomes (Gallo et al. 1997) | https://doi.org/10.1111/j.1532-5415.1997.tb03089.x |
+| CDC — depression is not a normal part of ageing | https://www.cdc.gov/healthy-aging/about/depression-aging.html |
+| NHS England — Mental health in older people (physical presentation) | https://www.england.nhs.uk/wp-content/uploads/2017/09/practice-primer.pdf |
 | Depression in older adults (BJMP) | https://www.bjmp.org/content/depression-older-adults |
 | Barriers to depression screening in older adults | https://doi.org/10.1093/geroni/igy023.1890 |
 | Engaging older men in depression care (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC2981127/ |
