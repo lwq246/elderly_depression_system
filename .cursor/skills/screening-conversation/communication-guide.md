@@ -165,9 +165,15 @@ Sources: RASA RACF Toolkit; Peregrine Centre toolkit.
 
 ## Safety
 
-Always assess suicidal thoughts in plain language before session end. Stigma may cause under-reporting — ask calmly, without judgment. Any current intent or plan → immediate staff handoff; stop screening questions.
+Always assess suicidal thoughts in **plain, direct language** before session end when there is a cue or a low-mood / withdrawn session. Stigma and ageism cause under-reporting — older adults often use a **passive death wish** ("I wish I wouldn't wake up", "they'd be better off without me", "I've had enough") rather than saying they want to die. Those phrases are **not** a normal part of ageing and are not a joke to laugh off.
 
-Sources: RASA RACF Toolkit; standard aged-care safety protocols.
+**Ask directly.** Reviews find that asking about suicide does not plant the idea and may slightly reduce distress. Softeners and leading tags ("You're not thinking of doing anything silly, are you?", "You don't have any suicidal thoughts, right?") invite a polite no and can sound dismissive. Columbia-style wording starts with wishing to be dead or to sleep and not wake up, then — if needed — thoughts of ending one's life, then whether that is **now** or only in the past. One question per turn on a speaker.
+
+The companion **collects** these answers and hands off to staff. It does not score C-SSRS or any instrument, does not diagnose risk level aloud, and does not quote crisis-line numbers unless facility SOP already requires it. Ambivalent answers ("not really", a joke without a clear no) are **unclear** — ask once more plainly, then hand off if still unclear.
+
+Any current intent, plan, or unclear-now answer → immediate staff handoff; stop casual screening questions.
+
+Sources: Columbia Lighthouse Project (plain-language questions); Dazzi et al. 2014 (asking does not induce ideation); Beyond Blue (ask directly; does not put ideas in their head); NCOA / 988 steps (ask, be there, keep safe — staff do the rest); Tan, Lim & Ong, *Singapore Med J* 2021 (avoid leading questions; late-life passive vs active); Rossom et al. / death wishes are not normal ageing; Mezuk et al. (LTC suicide risk; wish-to-die language); Life in Mind (older adults, burden, under-identification); RASA RACF Toolkit.
 
 ## References (online)
 
@@ -196,6 +202,13 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | Conversational AI call & depressive symptom detection, older adults (BMC Geriatrics 2026) | https://doi.org/10.1186/s12877-026-07038-0 |
 | Suicide prevention in older men — Men's Sheds RCT (Lancet Healthy Longevity 2025) | https://doi.org/10.1016/j.lanhl.2025.100741 |
 | Older adults & suicide risk (Life in Mind, AU) | https://lifeinmind.org.au/suicide-prevention/priority-populations/older-adults |
+| Columbia Lighthouse Project — plain-language C-SSRS questions | https://cssrs.columbia.edu/the-columbia-scale-c-ssrs/about-the-scale/ |
+| Dazzi et al. 2014 — asking about suicide does not induce ideation | https://doi.org/10.1017/s0033291714001299 |
+| Beyond Blue — how to talk; ask directly about suicide | https://www.beyondblue.org.au/get-support/support-someone/how-to-talk-to-someone-about-their-mental-health |
+| NCOA — suicide and older adults (ask directly) | https://www.ncoa.org/article/suicide-and-older-adults-what-you-should-know/ |
+| Suicide risk assessment in elderly individuals (Singapore Med J; PMC8801854) | https://pmc.ncbi.nlm.nih.gov/articles/PMC8801854/ |
+| Death wishes are not normal ageing (Rossom et al.; PMC6050135) | https://pmc.ncbi.nlm.nih.gov/articles/PMC6050135/ |
+| Suicide risk in long-term care (Mezuk et al. 2014) | https://pmc.ncbi.nlm.nih.gov/articles/PMC4232590/ |
 | Help-seeking beliefs among older men (Health Promotion Intl 2025) | https://doi.org/10.1093/heapro/daaf170 |
 | Why the elderly hide mental health struggles (SG) | https://www.impossiblepsychservices.com.sg/our-resources/articles/2025/01/31/why-the-elderly-often-hide-their-mental-health-struggles/ |
 | Late-life depression in Singapore — GP perspectives | https://doi.org/10.31219/osf.io/hmzk3 |
