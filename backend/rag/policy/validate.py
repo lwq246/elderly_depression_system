@@ -6,7 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from backend.rag.policy.chunking import iter_policy_sections
-from backend.rag.policy.routing import PATHWAY_ACTIVE, PATHWAY_PASSIVE
+from backend.rag.policy.routing import ALL_PATHWAYS, PATHWAY_ACTIVE, PATHWAY_PASSIVE
+from backend.rag.policy.section_meta import iter_directive_pathway_tokens
 
 REQUIRED_PATHWAYS = {PATHWAY_PASSIVE, PATHWAY_ACTIVE}
 VALID_LOCALES = {"en-AU", "en-SG"}
@@ -59,6 +60,24 @@ def validate_policy_markdown(
     missing_required = REQUIRED_PATHWAYS - pathways
     for pathway in sorted(missing_required):
         errors.append(f"missing required pathway: {pathway}")
+
+    # Every section must resolve to exactly one valid coarse bucket — no chunk is ingested
+    # without one (the ingest layer also hard-fails on this).
+    for section in sections:
+        if section["pathway"] not in ALL_PATHWAYS:
+            errors.append(
+                f"section '{section['section']}' has invalid/missing pathway: "
+                f"{section['pathway']!r} (expected one of {sorted(ALL_PATHWAYS)})"
+            )
+
+    # Surface typo'd directive tokens (e.g. `<!-- pathway: refrence -->`) that would be
+    # silently ignored and fall back to heading inference.
+    for token in iter_directive_pathway_tokens(text):
+        if token not in ALL_PATHWAYS:
+            warnings.append(
+                f"unknown pathway directive '{token}' ignored — "
+                f"expected one of {sorted(ALL_PATHWAYS)}"
+            )
 
     if "UNVERIFIED" in text:
         warnings.append("document contains UNVERIFIED markers — review before ingest")

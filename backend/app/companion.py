@@ -88,6 +88,24 @@ def _repetition_issues(reply: str, transcript: list[dict[str, Any]]) -> list[str
     return issues
 
 
+def _vocab_block_for(locale: str, utterance: str) -> str:
+    """Retrieve the locale vocabulary relevant to this utterance and format it for the prompt.
+
+    Returns a leading-newline block appended at the END of the companion user message so the
+    terms stay salient every turn (anti-forgetting). No-ops if the vocab collection is empty
+    or retrieval fails — the companion must never break because of the glossary.
+    """
+    if not utterance.strip():
+        return ""
+    try:
+        from backend.rag.vocab.retrieve import format_vocab_block, retrieve_relevant_vocab
+
+        block = format_vocab_block(retrieve_relevant_vocab(locale, utterance))
+        return f"\n\n{block}" if block else ""
+    except Exception:
+        return ""
+
+
 def build_companion_user_message(
     *,
     preferred_name: str | None,
@@ -127,6 +145,7 @@ async def generate_companion_reply(
         transcript=transcript,
     )
     user += "\n\n" + _style_directive(transcript)
+    user += _vocab_block_for(locale, _latest_resident_text(transcript))
     turn_index = sum(1 for turn in transcript if turn.get("role") == "resident")
 
     for attempt in range(2):

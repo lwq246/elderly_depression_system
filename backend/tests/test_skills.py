@@ -8,18 +8,16 @@ from backend.app.skills import (
 
 
 class TestCompanionPrompt(unittest.TestCase):
-    def test_companion_inlines_local_vocabulary_en_sg(self):
+    def test_companion_does_not_inline_local_vocabulary_en_sg(self):
         prompt = load_companion_system_prompt("en-SG")
-        # Phase 1: the full companion-relevant local vocabulary is inlined into the prompt.
-        self.assertIn("## Local vocabulary reference", prompt)
-        self.assertIn("burden my children", prompt)
-        # Per-turn RAG vocabulary retrieval was removed — that header must never appear.
+        # Vocabulary now lives in the Chroma vocab collection and is retrieved per turn and
+        # re-injected into the user message — it must NOT be inlined in the system prompt.
+        self.assertNotIn("## Local vocabulary reference", prompt)
         self.assertNotIn("## Retrieved local vocabulary (this turn)", prompt)
 
-    def test_companion_inlines_local_vocabulary_en_au(self):
+    def test_companion_does_not_inline_local_vocabulary_en_au(self):
         prompt = load_companion_system_prompt("en-AU")
-        self.assertIn("## Local vocabulary reference", prompt)
-        self.assertNotIn("## Retrieved local vocabulary (this turn)", prompt)
+        self.assertNotIn("## Local vocabulary reference", prompt)
 
     def test_companion_excludes_analyst_mapping(self):
         prompt = load_companion_system_prompt("en-SG")

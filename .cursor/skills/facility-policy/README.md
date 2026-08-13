@@ -68,4 +68,4 @@ Reformat a raw policy with `backend/rag/convert_policy.py convert` — a content
 
 Set `RAG_INDEX_LOCALES=en-AU` (default) or `en-AU,en-SG` in `.env` to control which files are embedded.
 
-Clinical domain rubrics stay in the analyst system prompt (`reference.md`). This folder is **facility ops only**.
+Clinical domain rubrics stay in the analyst system prompt (`reference.md`). This folder is **facility staff SOP only** — not AI, dashboards, or vendor tools.

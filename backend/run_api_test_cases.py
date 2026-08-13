@@ -196,6 +196,7 @@ SCENARIOS: list[dict[str, Any]] = [
         "checks": ["valid_schema", "all_nine_topics", "recommendation_check_in_or_visit"],
         "rag": {
             "expected_rag_locale": "en-AU",
+            "expected_rag_sections": ["Routine wellbeing follow-up"],
             "expected_recommendation_in": {"check_in", "visit_soon", "urgent"},
         },
     },

@@ -8,6 +8,9 @@ POLICY_COLLECTION_NAME = "screening-facility-policy"
 # Standalone reference material (e.g. the RASA mental-health toolkit) kept in its own
 # collection so it never mixes with facility-policy retrieval and survives policy --reset.
 TOOLKIT_COLLECTION_NAME = "screening-mh-toolkit"
+# Culture local vocabulary (companion). One record per canonical term; retrieved per turn
+# (literal alias match + semantic) and re-injected at the salient end of the companion prompt.
+VOCAB_COLLECTION_NAME = "screening-culture-vocabulary"
 # Legacy single-collection name (pre-split); deleted on ingest --reset.
 LEGACY_COLLECTION_NAME = POLICY_COLLECTION_NAME
 
@@ -36,11 +39,21 @@ def get_toolkit_collection(client: chromadb.PersistentClient | None = None):
     )
 
 
+def get_vocab_collection(client: chromadb.PersistentClient | None = None):
+    client = client or get_client()
+    return client.get_or_create_collection(
+        name=VOCAB_COLLECTION_NAME,
+        metadata=_COSINE,
+    )
+
+
 def get_collection_for_type(doc_type: str):
     if doc_type == "facility_policy":
         return get_policy_collection()
     if doc_type == "mh_toolkit":
         return get_toolkit_collection()
+    if doc_type == "culture_vocabulary":
+        return get_vocab_collection()
     raise ValueError(f"Unknown doc_type: {doc_type}")
 
 
@@ -68,8 +81,12 @@ def collection_counts() -> dict[str, int]:
     try:
         policy = get_policy_collection().count()
     except Exception:
-        return {"policy": 0, "total": 0}
-    return {"policy": policy, "total": policy}
+        return {"policy": 0, "vocab": 0, "total": 0}
+    try:
+        vocab = get_vocab_collection().count()
+    except Exception:
+        vocab = 0
+    return {"policy": policy, "vocab": vocab, "total": policy + vocab}
 
 
 def collection_count() -> int:

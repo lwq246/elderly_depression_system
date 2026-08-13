@@ -31,7 +31,33 @@ async def _analyst_system_prompt(transcript: list[dict[str, Any]], locale: str) 
     except Exception:
         pass
 
+    if settings.rag_analyst_vocab_retrieval:
+        system += _analyst_vocab_block(transcript, locale)
+
     return system
+
+
+def _analyst_vocab_block(transcript: list[dict[str, Any]], locale: str) -> str:
+    """Literal vocab over the full transcript — only terms the resident actually used."""
+    try:
+        from backend.rag.vocab.retrieve import retrieve_vocab_for_analyst
+
+        from .validator import resident_text_from_transcript
+
+        terms = retrieve_vocab_for_analyst(locale, resident_text_from_transcript(transcript))
+        if not terms:
+            return ""
+        lines = [
+            f"- {t.canonical} — {t.meaning}" if t.meaning else f"- {t.canonical}" for t in terms
+        ]
+        return (
+            "\n\n---\n\n## Local vocabulary reference (terms used this session)\n\n"
+            "Culture-specific terms the resident actually used, for interpretation only. "
+            "Evidence must cite resident line references (R1, R2, ...), never this glossary.\n\n"
+            + "\n".join(lines)
+        )
+    except Exception:
+        return ""
 
 
 async def run_analyst(

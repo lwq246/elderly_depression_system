@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .config import SKILLS_DIR
+from .config import SKILLS_DIR, settings
 
 # Screening-relevant sections pulled from culture-*/local-vocabulary.md and inlined into
 # the companion prompt (skip policy / local-light / sources — those are not runtime guidance).
@@ -76,16 +76,11 @@ def load_companion_system_prompt(locale: str) -> str:
     base = _read(base_path)
     culture_skill = _read(_culture_companion_path(locale))
 
-    # Inline the full companion-relevant local vocabulary for this locale so the model always
-    # has the whole lexicon in context (no per-turn retrieval).
-    vocab_ref = ""
-    vocab_path = _local_vocabulary_path(locale)
-    if vocab_path.is_file():
-        extracted = _extract_companion_vocabulary(_read(vocab_path))
-        if extracted:
-            vocab_ref = f"\n\n---\n\n## Local vocabulary reference\n\n{extracted}"
-
-    return f"{base}\n\n---\n\n{culture_skill}{vocab_ref}"
+    # Local vocabulary is no longer inlined here. It lives in the Chroma vocab collection and
+    # is retrieved per turn (literal + semantic) and re-injected at the END of the companion
+    # user message (see backend/rag/vocab/retrieve.py + companion.py) so it stays salient in
+    # long sessions instead of being defined once at the top and forgotten.
+    return f"{base}\n\n---\n\n{culture_skill}"
 
 
 def _extract_domain_criteria(reference_md: str) -> str:
@@ -109,10 +104,13 @@ def load_analyst_system_prompt(locale: str = "en-SG") -> str:
     if examples_path.is_file():
         parts.append("## Reference examples\n\n" + _read(examples_path).strip())
 
-    # Inline the full local vocabulary for the locale (same approach as the companion) so the
-    # analyst can interpret culture-specific terms — no per-turn vocabulary retrieval needed.
+    # Inline the full local vocabulary for the locale so the analyst can interpret
+    # culture-specific terms. When rag_analyst_vocab_retrieval is on, this is skipped: the
+    # analyst instead injects only the terms the resident actually spoke, retrieved over the
+    # full transcript at exit (see analyst._analyst_system_prompt).
+    inline_full_glossary = not (settings.rag_analyst_vocab_retrieval and settings.rag_enabled)
     vocab_path = _local_vocabulary_path(locale)
-    if vocab_path.is_file():
+    if inline_full_glossary and vocab_path.is_file():
         extracted = _extract_companion_vocabulary(_read(vocab_path))
         if extracted:
             parts.append(

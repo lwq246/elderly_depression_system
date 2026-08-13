@@ -22,6 +22,7 @@ def _build_where(
     pathways: list[str] | None,
     facility_id: str | None = None,
     doc_id: str | None = None,
+    status: str | None = None,
 ) -> dict[str, Any] | None:
     clauses: list[dict[str, Any]] = []
     if locale and locale != "all":
@@ -30,6 +31,8 @@ def _build_where(
         clauses.append({"facility_id": facility_id})
     if doc_id:
         clauses.append({"doc_id": doc_id})
+    if status:
+        clauses.append({"status": status})
     if pathways:
         clauses.append({"pathway": {"$in": pathways}})
     if not clauses:
@@ -47,6 +50,7 @@ def query_collection(
     pathways: list[str] | None = None,
     facility_id: str | None = None,
     doc_id: str | None = None,
+    status: str | None = None,
     top_k: int | None = None,
     query_embedding: list[float] | None = None,
     apply_similarity_threshold: bool = True,
@@ -58,7 +62,11 @@ def query_collection(
         return []
 
     where = _build_where(
-        locale=locale, pathways=pathways, facility_id=facility_id, doc_id=doc_id
+        locale=locale,
+        pathways=pathways,
+        facility_id=facility_id,
+        doc_id=doc_id,
+        status=status,
     )
 
     embedding = query_embedding if query_embedding is not None else embed_texts([query])[0]

@@ -6,17 +6,13 @@ import re
 from dataclasses import dataclass
 
 from backend.rag.policy.routing import (
-    PATHWAY_ACTIVE,
-    PATHWAY_GENERAL,
-    PATHWAY_PASSIVE,
+    ALL_PATHWAYS,
     section_pathway,
 )
 
-VALID_PATHWAYS = {
-    PATHWAY_PASSIVE,
-    PATHWAY_ACTIVE,
-    PATHWAY_GENERAL,
-}
+# A section directive may name any coarse bucket; unknown tokens are ignored (the heading
+# map / keyword inference then decides). Kept in sync with routing.ALL_PATHWAYS.
+VALID_PATHWAYS = set(ALL_PATHWAYS)
 
 _DIRECTIVE_RE = re.compile(r"<!--\s*(.+?)\s*-->", re.DOTALL)
 _KV_RE = re.compile(r"(\w+)\s*:\s*([^|]+)")
@@ -39,6 +35,20 @@ def _parse_directive_body(body: str) -> SectionMeta:
         if key.lower() == "pathway" and value in VALID_PATHWAYS:
             pathway = value
     return SectionMeta(pathway=pathway)
+
+
+def iter_directive_pathway_tokens(text: str) -> list[str]:
+    """Return every raw ``pathway: X`` token declared in HTML directives (lowercased).
+
+    Used by validation to warn when an author typos a bucket name — the token would
+    otherwise be silently ignored and the section would fall back to heading inference.
+    """
+    tokens: list[str] = []
+    for match in _DIRECTIVE_RE.finditer(text):
+        for key, raw in _KV_RE.findall(match.group(1)):
+            if key.lower() == "pathway":
+                tokens.append(raw.strip().lower())
+    return tokens
 
 
 def parse_section_directive(text: str) -> SectionMeta | None:

@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 
 from backend.rag.policy.embed_text import build_embed_text
+from backend.rag.policy.routing import ALL_PATHWAYS, STATUS_ACTIVE
 from backend.rag.policy.section_meta import (
     is_section_directive_line,
     resolve_section_pathway,
@@ -38,6 +39,7 @@ def _base_metadata(
         "doc_id": doc_id,
         "facility_id": facility_id,
         "doc_version": doc_version,
+        "status": STATUS_ACTIVE,
         "doc_type": doc_type,
         "parent_id": parent_id,
         "child_index": child_index,
@@ -217,6 +219,13 @@ def chunk_markdown(
     chunks: list[dict] = []
     for heading, content in sections.items():
         pathway = resolve_section_pathway(heading, content)
+        # Every chunk must carry exactly one valid coarse bucket. resolve_section_pathway
+        # always returns one, so this only fires if the taxonomy is edited inconsistently.
+        if pathway not in ALL_PATHWAYS:
+            raise ValueError(
+                f"section '{heading}' resolved to invalid pathway {pathway!r}; "
+                f"expected one of {sorted(ALL_PATHWAYS)}"
+            )
         chunks.extend(
             _make_child_chunks(
                 doc_id=doc_id,

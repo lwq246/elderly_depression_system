@@ -1,470 +1,175 @@
-# Wellbeing and Suicide-Risk Management SOP — Residential Aged Care (Australia)
+# Wellbeing and Suicide Risk Procedure
+
 Locale: en-AU
 
-| Field | Value |
-|-------|-------|
-| Document ID | RACF-WB-SOP-001 |
-| Version | 1.0 — [CONFIGURE: set on approval] |
-| Effective date | [CONFIGURE: date] |
-| Next review | [CONFIGURE: annual] |
-| Owner | Clinical Lead / Director of Nursing |
-| Approved by | [CONFIGURE: approving authority] |
-| Applies to | All clinical and care staff at [CONFIGURE: facility name] |
-| Related documents | Suicide Risk Management Procedure, Restrictive Practices Policy, SIRS Reporting Procedure, Privacy Policy, Dementia/BPSD Support Plan |
+| | |
+|---|---|
+| **Document type** | Procedure |
+| **Document ID** | [CONFIGURE: e.g. RACF-CLIN-PROC-042] |
+| **Version** | 1.0 |
+| **Effective date** | [CONFIGURE] |
+| **Review date** | [CONFIGURE: 12 months from approval] |
+| **Owner** | Director of Nursing / Clinical Care Manager |
+| **Approved by** | [CONFIGURE: Clinical Governance Committee] |
+| **Applies to** | All staff and contractors at [CONFIGURE: facility name] |
+| **Related documents** | Incident management procedure; SIRS procedure; Restrictive practices policy; Privacy policy; Behaviour support / dementia care plans; After-hours on-call roster |
 
-This is the facility clinical policy for responding to resident wellbeing and suicide-risk concerns in residential aged care (RACF). It applies to **all** such concerns, however identified — during routine care, by family or staff observation, or via the AI wellbeing screening tool used in the screening room.
+Fill all `[CONFIGURE]` fields before use. This procedure does **not** replace specialist mental health care or a hospital emergency protocol.
 
-**Part A (below)** is the clinical operational standard staff follow. **Appendix A** documents the AI screening tool's outputs, field definitions, and room technology — a mapping layer only, not a source of clinical decisions. **Configure** contact names, rosters, escalation trees, and dates for your site before production use.
+## Policy statement
+
+This facility will respond promptly and compassionately whenever a resident shows signs of suicidal thinking, self-harm, or serious distress. Registered nurses remain responsible for clinical decisions. Suicide risk is never managed by one person in isolation.
+
+All staff have a role in noticing concern and telling the nurse in charge.
+
+## Purpose
+
+To set out how staff identify concern, keep the resident safe, escalate, document, and hand over.
 
 ## Scope and use
 
-- Applies to any wellbeing or safety concern about a resident, including those surfaced by an AI screening room session (triggered by UWB band entry; resident identified by band, not spoken ID).
-- AI output is **screening support only** — registered nurses, ENs, and clinicians decide all care.
-- Where the AI tool is used, map its `recommendation` level and safety flags to the **facility actions** in this SOP (see Appendix A for field definitions), not as a diagnosis.
-- Covers staff response and follow-up. Companion conversation behaviour is governed separately.
-- Aligns with the Aged Care Quality Standards (person-centred care, dignity, risk management) — this SOP does not replace your facility’s clinical governance or mental health emergency plan.
-- Staff follow local clinical judgment when any screening output and the resident’s presentation do not align.
+This procedure applies to any wellbeing or suicide-risk concern about a resident, however it is identified: during routine care, by family or staff observation, or from a GP or other health professional.
 
-## Staff roles and responsibilities
+It covers **staff action in this home**. It does not describe vendor tools, software, or conversation scripts.
+
+This procedure aligns with the Aged Care Quality Standards (clinical care and risk management). It does not replace the facility mental health emergency plan, state mental health legislation, or clinical judgement.
+
+## Definitions
+
+| Term | Meaning in this procedure |
+|------|---------------------------|
+| Passive suicidal thoughts | Wish not to live, better off dead, or feeling a burden, **without** current plan, intent, or means |
+| Active suicidal thoughts | Current intent, plan, means, or imminent self-harm |
+| Safety plan | Agreed steps to reduce immediate harm (observation, means, who to call) pending clinical review |
+
+## Roles and responsibilities
 
 | Role | Responsibility |
 |------|----------------|
-| **AI screening tool (in room)** | Leads the wellbeing check-in and produces a screening report — no clinical decisions (see Appendix A) |
-| **Duty nurse / shift coordinator** | Receives alerts for `visit_soon` and above; assigns follow-up within timeframes below |
-| **Registered nurse (RN) in charge** | Reviews passive and active safety escalations; approves handover and GP / mental health referrals |
-| **Care staff on floor** | Observes resident after session if distress visible; does not leave alone when SOP requires presence |
-| **Nurse dashboard reviewer** | Reads analyst JSON, verifies evidence quotes against transcript, documents actions in care record |
-| **Facility manager / clinical lead** | Reviews monthly QA samples, override patterns, and repeated validation failures |
+| All staff | Notice distress; stay with the resident if they must not be left alone; tell the duty nurse immediately |
+| Duty nurse / shift coordinator | Receive the alert; assign follow-up; start the matching pathway below |
+| Registered nurse in charge | Review suicide-risk concerns the same shift; approve GP / mental health referral and handover |
+| Care workers / ENs | Complete assigned wellbeing checks; do not close a suicide-risk pathway without RN oversight |
+| Clinical Care Manager | Training, competency, and review of this procedure |
 
-Staff must not wait for the analyst report before acting on **visible imminent risk** in the room — follow active safety escalation immediately.
+If the resident is in immediate danger, start **Active safety escalation**. Do not wait for paperwork.
 
-**Delegation:** ENs and care workers may conduct assigned `check_in` visits per facility protocol; passive and active safety pathways require **RN oversight** unless your state delegation framework explicitly permits otherwise.
+## Identification
 
-## Before and during screening
+Concern may be raised at any time. Staff should take seriously:
 
-**Eligibility:** Resident is generally able to participate in a brief voice conversation. If they are acutely unwell, asleep, in acute distress, or mid-procedure, defer screening and note reason in care record.
+- Talk of not wanting to wake, being a burden, or “no point”
+- Withdrawal, marked change in sleep, appetite, or engagement
+- New access to medication or other means
+- Family or staff reports that “something is not right”
 
-**Consent and dignity:** Screening is voluntary. If the resident declines to continue, stop the session (UWB exit or staff override). Document refusal — no mandatory analyst follow-up unless staff observe safety concern independently.
+Ask about thoughts of suicide **directly and calmly** when concern is present. Many older people, especially men, will not volunteer this. Do not treat a single “I’m fine” as clearance.
 
-**Cognitive impairment:** A resident with dementia or fluctuating capacity may give inconsistent answers. Treat analyst output as one data point; corroborate with staff observation, family, and care plan history.
+If the resident cannot take part in a conversation (acute illness, severe distress, delirium), stay with them if unsafe to leave, and use staff observation and the care plan.
 
-**Distress during session:** If the resident becomes visibly upset or discloses imminent risk during conversation, staff enter the room and follow active safety escalation — do not rely on the session completing normally.
+## Assessment and follow-up
 
-**Language:** Companion uses plain English. If the resident needs an interpreter, use your facility’s usual language-access pathway; note limitation on analyst evidence in handover.
+The registered nurse (or delegate under RN direction) reviews the resident in person when this procedure is triggered. Assessment is for **safety and next steps**, not for predicting suicide.
 
-**Hearing and speech:** If the resident cannot hear the speaker clearly or STT fails repeatedly, offer a staff-led check-in instead of forcing the AI session. Document accommodation in the care record.
+If sources of information conflict, staff judgement prevails. Document the reason.
 
-**Room environment:** Screening room should be quiet, private, and familiar. Reduce competing noise from TVs or corridor traffic where possible — poor audio affects transcript quality and analyst confidence.
+Where English is not the resident’s preferred language, use a professional interpreter for safety-sensitive conversations. Do not use family to interpret thoughts of suicide.
 
-## Routine follow-up actions
+## Routine wellbeing follow-up
 
-| Analyst `recommendation` | Facility action | Target timeframe |
-|--------------------------|-----------------|------------------|
-| `none` | No mandatory follow-up; note in routine handover if useful | Next shift handover |
-| `check_in` | Assigned nurse brief wellbeing check (in person or per your protocol) | Within **48 hours** |
-| `visit_soon` | Nurse visit; document mood, safety, and supports in care record | Within **24 hours** |
-| `urgent` | Immediate nurse presence; escalate per active safety SOP below | **Immediate** |
+Use this table for routine wellbeing check-ins and non-crisis concerns — low mood, poor sleep, reduced appetite, withdrawal, or several daily-life concerns with no suicide-risk language. It matches the level of concern to the facility follow-up action and the timeframe for a nurse wellbeing check or visit.
 
-Screen-positive pattern (5+ concern domains with evidence): treat as minimum **`visit_soon`** even if passive safety only.
-
-**Edge cases:**
-
-- **`check_in` + `passive_suicidal_ideation: true`** → follow passive safety escalation; do not treat as routine check-in only.
-- **`none` but staff disagree** → nurse clinical judgment prevails; document override and reason.
-- **Several domains `discussed: false`** → analyst may under-call concern; nurse may schedule informal check-in if clinical picture warrants.
-- **Low `estimate_confidence`** → short or vague session; prefer nurse re-engagement over assuming `none` means well.
-- **Companion safety handoff occurred** → treat as minimum **`visit_soon`** until RN reviews, even if analyst recommendation is lower.
-
-## Domain-led follow-up (non-crisis)
-
-When `recommendation` is `check_in` or `visit_soon` without safety flags, use domain evidence to guide the nurse conversation:
-
-| Domain signal (examples) | Nurse focus | Document |
-|--------------------------|-------------|----------|
-| Mood / spirits low | Open-ended mood check; what helps on better days | Quote + observation |
-| Sleep poor | Sleep hygiene, pain, toileting, medication review trigger | Sleep pattern notes |
-| Appetite low | Weight trend, oral intake, dental issues, GP if sustained | Food/fluid chart reference |
-| Social withdrawal | Visitors, activities, loneliness, bereavement | Social care plan update |
-| Energy / fatigue | Medical review triggers, activity pacing, depression screen by GP if indicated | Referral if persistent |
-| Worries / outlook | Practical worries (family, finances, health); chaplain or SW if appropriate | Non-diagnostic summary |
-
-These are **prompts for nurse conversation**, not automatic diagnoses or referrals.
+| Level of concern | Facility action | Timeframe |
+|------------------|-----------------|-----------|
+| No current wellbeing or safety concern | Note in handover if useful | Next shift |
+| Low mood or daily-life concern, no suicide-risk language | Nurse wellbeing check | Within **48 hours** |
+| Clear distress, withdrawal, or several areas of concern | Nurse visit; document mood, safety, and supports | Within **24 hours** |
+| Passive suicidal thoughts | Follow **Passive safety escalation** | Starts within **15 minutes** of becoming known |
+| Active suicidal thoughts, plan, means, or imminent danger | Follow **Active safety escalation** | **Immediate** |
 
 <!-- pathway: passive_safety -->
 ## Passive safety escalation
 
-**Triggers:** passive suicidal thoughts (e.g. wish not to wake, better off dead, feeling a burden) **without** current plan, intent, or means. Analyst flag: `passive_suicidal_thoughts: true`.
+Use when the resident expresses passive suicidal thoughts without current plan, intent, or means.
 
-| Step | Action |
-|------|--------|
-| 1 | Duty nurse notified within **15 minutes** of session end |
-| 2 | Do not leave resident alone if distress is visible |
-| 3 | Registered nurse in charge review **same shift** |
-| 4 | Document verbatim resident quotes in care system |
-| 5 | GP or mental health nurse follow-up per RACF pathway within **24 hours** |
-| 6 | Consider increased observation per facility risk plan until review completed |
-| 7 | Review medications and access to means per facility policy (see Medication and means safety) |
+1. Notify the duty nurse within **15 minutes**.
+2. Do not leave the resident alone if they are distressed.
+3. Registered nurse in charge reviews **this shift**.
+4. Record the resident’s own words in the care record.
+5. Increase observation per the care plan until that review is done.
+6. Arrange GP or mental health nurse follow-up within **24 hours** (or sooner if the RN judges it necessary).
+7. Review access to medication and other means (see Environmental safety).
 
-Minimum analyst mapping: `recommendation` **`visit_soon`** or higher.
+If the resident later discloses a plan, intent, or means, switch to **Active safety escalation**.
 
-**Plan denial:** If resident reported passive thoughts but **denied plan or intent** (e.g. “No plan. I will not do that.”), passive pathway may still apply — active escalation is not automatic. RN confirms current risk in person.
-
-**Not passive safety:** clear denial of current thoughts (e.g. “No, I do not wish to hurt myself”) with no other risk indicators — document and follow routine pathway unless staff observe otherwise.
-
-**Past vs current:** Thoughts described as historical only, with clear denial of current intent → document; RN judgment on whether passive flag in analyst output reflects residual risk.
+Historical thoughts with a clear, current denial still need documentation. The RN decides whether extra observation is required.
 
 <!-- pathway: active_safety -->
 ## Active safety escalation
 
-**Triggers:** current intent, plan, means, or imminent risk (pills, overdose, hurt/kill self, etc.). Analyst flag: `active_suicidal_ideation: true` → `recommendation` **`urgent`**.
+Use when there is current intent, plan, means, or imminent risk of harm.
 
-| Step | Action |
-|------|--------|
-| 1 | **Stop AI screening** — staff take over in room immediately |
-| 2 | Notify RN in charge and senior clinician **now** — do not delay for analyst JSON |
-| 3 | Do not leave resident alone |
-| 4 | Call **000** if imminent danger to life |
-| 5 | Follow facility mental health emergency protocol; preserve means if safe to do so |
-| 6 | Document actions and quotes within **1 hour** |
-| 7 | Notify GP and next of kin per facility policy and resident preferences |
-| 8 | Complete incident report per facility requirements if self-harm attempt or near-miss |
-
-Minimum analyst mapping: `recommendation` **`urgent`**.
-
-**Means access:** References to pills in drawer, stockpiling medication, or “taking too many” with self-harm context → active pathway even if resident minimises intent. Do not reframe as sleep medication without explicit resident clarification documented by RN.
-
-**Companion handoff:** If the AI companion stated that a care team member will speak with the resident soon, staff must **honour that** — enter room promptly; do not resume AI screening.
+1. Stop whatever is underway. Staff stay with the resident in person.
+2. Notify the RN in charge **now**. Do not wait for a written note.
+3. Do not leave the resident alone.
+4. Call **000** if there is imminent danger to life.
+5. Follow the facility mental health emergency plan. Remove or secure means if it is safe to do so.
+6. Notify the GP and nominated contact in line with the care plan and the resident’s preferences.
+7. Document actions and the resident’s words within **1 hour**.
+8. Complete an incident report if there was self-harm or a near miss.
 
 <!-- pathway: active_safety -->
-## Medication and means safety
+## Environmental safety (access to means)
 
-Applies when transcript or analyst report mentions medication access, overdose thoughts, or stockpiled tablets.
+After any suicide-risk concern, the RN considers what the resident can reach.
 
 | Situation | Action |
 |-----------|--------|
-| Pills accessible in room | RN review; secure or supervise per risk plan |
-| PRN sedatives or opioids | Medication review with GP or pharmacist if self-harm concern |
-| Recent medication change | Note in handover; correlate with mood/sleep changes |
-| No imminent risk but means mentioned | Document; consider means restriction as part of care plan review |
+| Loose medication in the room | Review and supervise or secure per the medication and restrictive-practice policies |
+| PRN sedatives or opioids | Medication review with the GP or pharmacist |
+| Other means (ligature points, sharp items) | Environmental check; record actions |
 
-Staff do not remove medications without RN/medical direction and resident rights review.
-
-## CALD, language, and cultural safety
-
-Many RACF residents speak languages other than English at home.
-
-| Situation | Facility action |
-|-----------|-----------------|
-| Resident struggled with AI English session | Offer TIS **131 450** or accredited interpreter for nurse follow-up |
-| Cultural idioms in transcript (e.g. “heart heavy”, “crook”) | Use analyst evidence quotes; ask resident to explain in their words |
-| Family as interpreter | Avoid for safety-sensitive disclosures; use professional interpreter where feasible |
-| Shame or stigma around mental health | RN uses non-stigmatising language; do not label resident “depressed” in chart without clinical assessment |
-
-Document language used and whether interpreter was offered or declined.
-
-## Cognitive impairment and fluctuating capacity
-
-| Presentation | Guidance |
-|--------------|----------|
-| Inconsistent answers across domains | Weight staff observation over single AI session |
-| Unable to understand safety questions | Defer formal screening; document capacity note |
-| Known dementia diagnosis | Screening is optional signal; align with behavioural observation charts |
-| Resident agrees but confabulates | Verify concerns with care team before escalation |
-
-Analyst `discussed: false` on many domains is common — does not mean resident is well.
-
-## Bereavement, loss, and end-of-life context
-
-| Signal | Guidance |
-|--------|----------|
-| Recent death of spouse or friend | Validate grief; distinguish from depression via RN assessment — not AI |
-| Palliative care resident | Screening may be inappropriate; follow individual care plan |
-| “Wish not to wake” with terminal illness | Urgent RN review; may be distress or treatment burden — not automatic psychiatric pathway |
-| Anniversary or birthday low mood | `check_in` may suffice; document psychosocial support offered |
-
-Do not dismiss passive language solely because resident is elderly or unwell — context determines pathway.
-
-## Men's mental health and stoicism
-
-Australian older men often minimise mood concerns (“I’m fine”, “she’ll be right”).
-
-- Nurse follow-up may need **somatic entry** (sleep, pain, energy) before mood.
-- Single-session `none` with low confidence does not rule out concern.
-- Consider GP review if somatic complaints persist without clear medical cause.
-
-## Sleep and rest concerns
-
-Poor sleep is one of the most common domain signals and is often the easiest entry point for a reluctant resident.
-
-| Signal in transcript | Nurse focus | Escalate if |
-|----------------------|-------------|-------------|
-| Wakes repeatedly, early-morning waking | Pain, toileting, noise, caffeine, nocturia | Sustained 2+ weeks or paired with low mood |
-| Cannot get to sleep, racing thoughts | Anxiety, worry, recent change or loss | Paired with passive safety language |
-| Sleeping most of the day | Withdrawal, boredom, sedation, low mood | Marked change from baseline |
-| Nightmares or distress on waking | Grief, trauma, medication side-effect | Distress persists after reassurance |
-
-- Review PRN sedative use and timing with the RN before assuming a sleep-hygiene fix.
-- Offer non-drug options first (routine, daytime light and activity, reduced evening noise) per care plan.
-- Document the baseline sleep pattern so change over time is visible at the next screening.
-
-## Pain and physical comfort
-
-Untreated pain frequently presents as low mood, irritability, or withdrawal in older residents — especially those who cannot easily self-report.
-
-| Presentation | Nurse focus | Document |
-|--------------|-------------|----------|
-| “Everything aches”, reluctance to move | Site, pattern, and impact on activity and sleep | Pain score + observation |
-| Guarding, grimacing, resisting care | Non-verbal pain in cognitive impairment | Behaviour chart reference |
-| Mood lifts when comfortable | Correlate pain relief with mood | Note for care plan |
-
-- Use an appropriate pain tool (e.g. Abbey Pain Scale for residents with dementia) per facility policy.
-- Flag new or worsening pain for GP or nurse practitioner review; do not attribute pain to ageing alone.
-- Poorly controlled pain with passive safety language is a **compound concern** — raise both with the RN.
-
-## Appetite, nutrition, and hydration
-
-| Signal | Nurse focus | Action |
-|--------|-------------|--------|
-| Skipping meals, “not hungry” | Mood, dentition, taste change, medication | Food/fluid chart; weight trend |
-| Unintentional weight loss | Dysphagia, illness, low mood | GP review; dietitian referral if sustained |
-| Refusing fluids | Confusion, UTI, low mood, end-of-life context | Hydration plan; RN review |
-| Eats only with company | Loneliness, environment | Social dining, mealtime support |
-
-- Sustained appetite change across two or more screenings warrants GP and dietitian review.
-- Distinguish reduced appetite from **active food refusal**, which may signal distress or a wish to withdraw — escalate the latter to the RN.
-
-## Social connection and loneliness
-
-Loneliness is a strong driver of low mood in residential aged care and is often understated by stoic residents.
-
-| Signal | Nurse focus | Support options |
-|--------|-------------|-----------------|
-| Few or no visitors | Family contact, transport barriers, estrangement | Volunteer visitor, video calls |
-| Declines group activities | Hearing, mobility, English, interest fit | One-to-one before group; interest-matched activity |
-| Recent loss of a friend on-site | Grief, changed routine | Peer support, chaplaincy |
-| “Nobody would notice” language | **Screen for passive safety** — may be more than loneliness | RN review same shift |
-
-- Link findings to the lifestyle and activities team and to the individualised care plan.
-- Watch for loneliness language that shades into passive safety (“burden”, “no point”) — route to the passive safety pathway if present.
-
-## Anxiety, worry, and agitation
-
-| Presentation | Nurse focus | Escalate if |
-|--------------|-------------|-------------|
-| Persistent worry about family, health, or money | Practical problem-solving; reassurance | Interfering with sleep or eating |
-| Restlessness, pacing, calling out | Unmet need (pain, toileting, boredom, fear) | Risk to self or others |
-| Panic-like episodes | Triggers, breathing, medical causes | Recurrent or severe |
-| Repetitive questioning (dementia) | Orientation, routine, environment | Escalating distress |
-
-- Rule out medical and environmental causes before assuming a psychological cause.
-- Persistent anxiety with functional impact warrants GP review; do not start or change medication on an AI signal.
-
-## Dementia and behavioural support
-
-Behavioural and psychological symptoms of dementia (BPSD) can mimic or mask depression signals in screening.
-
-| Presentation | Nurse focus | Support |
-|--------------|-------------|---------|
-| Apathy, withdrawal | Distinguish from low mood; check baseline | Meaningful activity, life-history cues |
-| Agitation late in the day | Sundowning triggers, environment | Routine, lighting, reduced stimulation |
-| Distress you cannot settle | Unmet need, pain, delirium | RN review; medical assessment |
-
-- Use a non-pharmacological approach first, guided by the resident’s behaviour support plan.
-- For complex BPSD, consider Dementia Support Australia **1800 699 799**.
-- Do not record AI-generated mental-health labels in the dementia care plan — use observed behaviour and RN assessment.
-
-## Alcohol and other substance use
-
-Applies when the transcript mentions drinking, “a few too many”, or relying on tablets to cope. This is a **wellbeing** concern; suspected self-harm via medication follows the active safety and medication/means pathways instead.
-
-| Signal | Nurse focus | Action |
-|--------|-------------|--------|
-| Regular alcohol use affecting mood or falls | Quantity, interactions with medication | GP review; document |
-| “Only thing that helps me cope” | Underlying mood, sleep, or pain concern | Domain follow-up + GP |
-| Requests for extra sedatives | Dependence, pain, anxiety | Medication review with RN/GP |
-
-- Approach non-judgementally; residents retain the right to make choices about legal substances within a shared risk framework.
-- Where use is linked to self-harm intent, escalate via **Active safety escalation** and **Medication and means safety**.
-
-## Family and next of kin
-
-- **Default:** Do not contact family solely on the basis of AI screening output without RN review.
-- **`check_in` / `visit_soon`:** Involve family only if clinically appropriate and consistent with resident wishes and care plan.
-- **`urgent` or active safety:** Follow facility emergency notification policy; respect advance care directives and nominated contacts.
-- Document who was contacted, when, and what was shared (factual, non-diagnostic language).
-
-**Burden on family:** Common worry in older residents — note in handover; social work referral if persistent and affecting mood.
-
-## GP and mental health referral pathways
-
-| Trigger | Typical action |
-|---------|----------------|
-| `visit_soon`, passive safety resolved at review | GP notification within 24–48h per facility protocol |
-| Persistent low mood / functional decline | GP review; consider geriatric psychiatry or PMHC referral |
-| Active safety post-crisis | Emergency department or community mental health per local pathway |
-| Medication-related mood change | GP or pharmacist review |
-
-Document referral made, declined, or deferred — and reason.
-
-## After-hours and weekends
-
-| `recommendation` | After-hours action |
-|------------------|-------------------|
-| `none` / `check_in` | Log for next shift; `check_in` still due within **48 hours** from session end |
-| `visit_soon` | On-call RN or nurse-in-charge contacts resident or ensures welfare check before next routine round |
-| `urgent` / active safety | Immediate on-call RN and senior clinician; **000** if imminent risk — same as business hours |
-
-Replace on-call names and numbers with your facility roster.
+Staff do not remove prescribed medication without RN or medical direction and a rights review.
 
 <!-- pathway: active_safety -->
 ## Crisis contacts (staff reference)
 
-**Do not read aloud to residents** unless your facility SOP explicitly requires it during handoff.
+For staff use. Do not read this list to residents unless the emergency plan requires it.
 
-| Service | Contact | When |
-|---------|---------|------|
+| Service | Number | When |
+|---------|--------|------|
 | Emergency | **000** | Imminent danger |
-| Lifeline | **13 11 14** (24h) | Staff reference / support options |
-| Beyond Blue | **1300 22 4636** | Staff reference |
-| Suicide Call Back Service | **1300 659 467** | Staff reference for follow-up planning |
-| TIS National (interpreters) | **131 450** | Staff arrange for CALD follow-up |
+| Lifeline | **13 11 14** | Staff reference |
+| Suicide Call Back Service | **1300 659 467** | Staff reference |
+| TIS National (interpreters) | **131 450** | Safety-sensitive follow-up if an interpreter is needed |
+| Local GP after hours | [CONFIGURE] | Medical review after hours |
+| On-call RN / manager | [CONFIGURE] | After-hours escalation |
 
-Replace with your facility’s approved contact list, RACF escalation tree, GP after-hours line, and on-call roster.
+Replace this table with the facility escalation tree and current roster.
 
-## Documentation and handoff
+## After hours
 
-- Log screening session ID, resident ID, end time, and analyst `recommendation` in the care record.
-- Attach **verbatim resident evidence quotes** from the nurse dashboard — not AI paraphrase.
-- Handover note must state: **screening only, not a diagnosis**.
-- Record safety flags (`passive_suicidal_thoughts`, `active_suicidal_ideation`) and which SOP path was followed.
-- If validation errors appear on the report, flag for **human review** before clinical decisions — treat domains with missing or unverified evidence as unconfirmed.
-- Retain records per your facility retention schedule and the Privacy Act 1988 (Cth) / Australian Privacy Principles for personal information.
-- Note whether RAG-retrieved policy sections were used for reference — clinical action remains nurse-led.
+| Concern | After-hours action |
+|---------|-------------------|
+| Wellbeing check only | Log for the next shift; the 48-hour clock still runs from when concern was identified |
+| Visit within 24 hours | On-call RN ensures a welfare check before the next routine round |
+| Active safety | Same as business hours: on-call RN, senior clinician, **000** if needed |
 
-**Handover template (minimum):** session date/time · recommendation · safety flags · domains with concern · actions taken · next review time · who notified.
+## Documentation and handover
 
-## Re-screening and monitoring
+Record, in the care record:
 
-| Situation | Guidance |
-|-----------|----------|
-| Prior `visit_soon` or safety escalation | Next routine UWB screening is not a substitute for scheduled nurse follow-up — complete assigned visit first |
-| Resident stable after `check_in` | No fixed re-screen interval; follow care plan and nurse judgment |
-| Repeated `check_in` or `visit_soon` within 14 days | RN review for care plan update; consider GP or mental health referral |
-| Resident refused screening | Do not force; note refusal; RN may offer staff-led check-in within 7 days if appropriate |
-| Improvement after intervention | Continue care plan; routine screening may resume on normal UWB schedule |
+- Date and time concern was identified, and how (care, family, other)
+- The resident’s own words where suicide risk is involved
+- Which pathway was followed and who was notified
+- Actions taken and the time of the next review
 
-## Privacy and information sharing
+Keep records per the Privacy Act 1988 (Cth) and the facility privacy policy. Share only what is needed for care.
 
-- Screening transcripts and analyst reports contain sensitive health information — access on need-to-know basis only.
-- Do not share full transcripts in open ward areas or non-secure messaging.
-- External disclosure (GP, hospital, family) follows resident consent, substitute decision-maker rules, and your facility privacy policy.
-- De-identified aggregate data for quality improvement is permitted per local governance — no resident names in routine audit exports.
-- Residents may request access to their information per APP 12 — route to privacy officer.
+## Training and review
 
-## Staff training and competency
+Staff who review suicide-risk concerns complete competency before working unsupervised. All care staff receive this procedure at induction and at least annually.
 
-| Topic | Frequency |
-|-------|-----------|
-| Reading analyst dashboard and evidence quotes | At onboarding + annual refresh |
-| Passive vs active safety pathways | Annual mandatory |
-| CALD and interpreter use | Annual |
-| Manual session override and UWB faults | On deployment + as needed |
-| This SOP and local escalation tree | Annual sign-off |
+After an active-safety event, offer a staff debrief and EAP per facility policy.
 
-New staff must not review safety escalations unsupervised until competency signed off by RN educator or clinical lead.
-
-## Staff wellbeing and debrief
-
-Supporting residents in distress affects staff.
-
-- After **active safety** events: offer debrief with RN in charge or EAP per facility policy.
-- Document critical incidents; do not rely on AI transcript alone for staff incident reports.
-- Rotate screening room coverage if staff report vicarious distress.
-
-## Complaints and resident rights
-
-- Residents may refuse AI screening without affecting other care — document only.
-- Complaints about the companion or screening process → facility complaints officer; preserve session ID for review.
-- Charter of Aged Care Rights applies — dignity, choice, and quality care in all pathways above.
-
-## Quality assurance
-
-- Monthly sample: nurse reviewer checks that `urgent` and safety cases had documented actions within SOP timeframes.
-- Track overrides where staff escalated above analyst `recommendation` — feed back to clinical governance, not as a system fault.
-- Report repeated validation failures or missing evidence to the person responsible for screening room operations.
-- Quarterly review: false-negative near-misses (staff escalated despite low AI recommendation).
-- Annual review: update crisis contacts, on-call roster, and GP pathways in this document.
-
-## Elder abuse and safeguarding concerns
-
-Screening may surface signs of abuse, neglect, or exploitation. These follow your facility safeguarding policy — they are **not** part of the suicide-risk pathways above.
-
-| Concern | Examples | Action |
-|---------|----------|--------|
-| Physical / neglect | Unexplained injury, poor hygiene, fear of a person | RN and facility safeguarding lead same shift |
-| Financial | Missing money, pressure over will or accounts | Escalate to manager; do not confront the alleged party |
-| Emotional | Intimidation, isolation by another person | Document verbatim; protect the resident |
-
-- Serious Incident Response Scheme (SIRS) reportable incidents must be notified per legislation and facility policy.
-- Support contacts: Older Persons Advocacy Network (OPAN) **1800 700 600**; national elder abuse line **1800 353 374**.
-- Never promise secrecy about a safeguarding disclosure; explain who needs to know and why.
-
-## Consent, capacity, and substitute decision-making
-
-- Screening participation is voluntary; a resident may stop at any time without affecting other care.
-- Capacity is decision-specific and may fluctuate — a person may consent to a chat but not to a care change.
-- Where a resident lacks capacity for a relevant decision, involve the **enduring guardian, attorney, or person responsible** per your state framework and the resident’s advance care directive.
-- Document the basis for any decision made on the resident’s behalf, and the least-restrictive option considered.
-- An AI screening result never overrides a valid advance care directive or a documented refusal of treatment.
-
-## Transitions: admission, hospital transfer, and respite
-
-Mood and safety risk often shift around transitions.
-
-| Transition | Watch for | Action |
-|------------|-----------|--------|
-| New admission (first 4–6 weeks) | Adjustment distress, disorientation, homesickness | Increase informal check-ins; settle-in plan |
-| Return from hospital | Delirium, pain, medication changes, low mood | RN review; reconcile medications |
-| Respite / short stay | Limited baseline, unfamiliar environment | Corroborate AI signal with family and referrer |
-| Room or wing change | Loss of familiar staff and peers | Anticipate and support |
-
-- Treat a low or safety-flagged screening during a transition as **at least `visit_soon`** until the RN reviews the context.
-
-## Integration with care plans
-
-- Update individualised care plan when repeated domain concerns appear (sleep, social, mood).
-- Link screening outcomes to existing behavioural support plans for dementia residents where relevant.
-- Do not enter AI-generated labels (e.g. “depression”) into care plan problem list — use observable terms and RN assessment.
-
-## Appendix A — AI screening integration (system)
-
-This appendix documents the AI wellbeing screening tool that assists staff in the screening room. It defines the tool's outputs and room technology so staff can map screening results to the clinical pathways in Part A. **The AI is screening support only — all clinical decisions rest with registered nurses and clinicians.** Nothing in this appendix overrides Part A.
-
-## Analyst output reference (dashboard fields)
-
-Use the nurse dashboard JSON together with this SOP. Key fields:
-
-| Field | Staff use |
-|-------|-----------|
-| `recommendation` | Primary driver for follow-up timeframe (`none` → `urgent`) |
-| `passive_suicidal_thoughts` | Triggers passive safety pathway when true |
-| `active_suicidal_ideation` | Triggers active safety pathway; expect `urgent` |
-| `suicide_risk_flag` | Summary safety flag — review even if recommendation seems low |
-| `transcript_topics[].concern` | Domain-level screening signals with verbatim `evidence` |
-| `estimate_confidence` | Low confidence = incomplete screening; nurse may schedule informal follow-up |
-| `explanation` | Nurse-facing summary — screening language only, not diagnosis |
-
-**Screen-positive pattern:** Five or more domains with `concern: true` and resident evidence → minimum **`visit_soon`**, even without safety flags.
-
-**Validation errors on report:** Treat affected domains as **unverified**. RN reviews transcript manually before clinical action. Do not dismiss safety concerns solely because the JSON failed validation.
-
-## Screening room technology (UWB and audio)
-
-| Issue | Action |
-|-------|--------|
-| UWB exit not detected | Staff manual session end in dashboard; document technical fault |
-| Wrong resident on band | Stop session; verify identity; incident log if data crossed |
-| Poor STT / resident not heard | Retry once; then offer staff-led check-in |
-| Speaker too loud or startling | Adjust volume; note resident distress in record |
-
-Technology failures do not delay **visible** safety response in the room.
+The Clinical Care Manager samples urgent and suicide-risk cases monthly for actions within the timeframes above, and reviews this document at least annually (contacts, roster, GP pathway).

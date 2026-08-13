@@ -23,11 +23,46 @@ class Settings(BaseSettings):
     database_path: str = str(DATA_DIR / "screening.db")
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
     companion_history_turns: int = 12
-    # RAG — analyst facility policy only (ingest.py). Local culture vocabulary is inlined into
-    # the companion/analyst prompts from local-vocabulary.md, not retrieved.
+    # RAG — analyst facility policy (ingest.py) and companion culture vocabulary
+    # (vocab/ingest.py). Vocabulary is retrieved per companion turn (literal alias match +
+    # semantic) and re-injected at the end of the prompt so it is never "forgotten" in long
+    # sessions. The analyst still inlines the glossary (single-shot call, nothing to forget).
     rag_enabled: bool = False
     rag_chroma_path: str = str(DATA_DIR / "rag" / "chroma")
     rag_top_k: int = 3
+    # Analyst facility-policy retrieval breadth (kept separate from rag_top_k so general
+    # domain sections aren't starved; safety sections are guaranteed on top of this).
+    rag_policy_top_k: int = 6
+    # "Filter then rank": restrict the broad semantic lane to the non-safety ('general')
+    # chunks before cosine. Safety sections still enter via the deterministic
+    # guarantee-include, so they are unaffected. OFF by default — only worth enabling once
+    # the corpus is large enough that ranking everything gets noisy.
+    rag_policy_pathway_filter: bool = False
+    # Two-stage retrieve: fetch a wider candidate pool, then rerank down to rag_policy_top_k.
+    # ON: the broad lane fetches rag_policy_candidate_pool rows and passes them through
+    # rerank_chunks(). NOTE: with rag_policy_reranker_model empty the rerank is an identity
+    # pass (wider fetch, no reordering) — set a model below to make it actually rerank.
+    rag_policy_rerank: bool = True
+    # Candidate breadth for the rerank stage; also the hard cap so fetch latency stays flat
+    # as the corpus grows (ignored when rag_policy_rerank is off).
+    rag_policy_candidate_pool: int = 30
+    # Cross-encoder model for reranking (e.g. "BAAI/bge-reranker-base"). Empty = the hook is
+    # present but a no-op (identity), so enabling the model later is a pure config change.
+    rag_policy_reranker_model: str = ""
+    # Max culture-vocabulary terms re-injected into the companion prompt per turn
+    rag_vocab_top_k: int = 5
+    # Analyst-exit vocab retrieval. OFF: the analyst inlines the full glossary (default).
+    # ON: at exit the analyst retrieves only the terms the resident actually SPOKE — a single
+    # literal (Aho-Corasick) pass over the full transcript — and injects just those. High
+    # recall for used terms, smaller prompt, no paraphrase noise. Requires rag_enabled and an
+    # ingested vocab collection; with either missing the analyst gets no vocab, so keep OFF
+    # until vocabulary is ingested.
+    rag_analyst_vocab_retrieval: bool = False
+    # Companion vocab retrieval lanes: literal alias match (Aho-Corasick) is always on.
+    # The semantic (cosine) lane is OFF by default — on an English companion model it mostly
+    # re-teaches meanings the model already knows and adds noise. Enable only if you switch to
+    # a multilingual embedder or a weaker companion model that needs the gloss spelled out.
+    rag_vocab_semantic: bool = False
     # Min cosine similarity for Chroma retrieval (cosine space: similarity = 1 - distance)
     rag_min_similarity: float = 0.35
     # Embedding backend: local (sentence-transformers) or api (OpenRouter/OpenAI)
