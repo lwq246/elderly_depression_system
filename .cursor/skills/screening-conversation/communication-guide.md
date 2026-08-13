@@ -67,6 +67,10 @@ Use the **OARS** framework every turn:
 
 **Reflection over questioning:** Reflection is the primary skill — aim for **about two reflections per question**, and keep **at least half of reflections "complex"** (inferring the underlying feeling, meaning, or value) rather than simply repeating words, which sounds like parroting. A reflection is a **statement, not a question** — let your voice fall at the end. Questions interrupt the resident's flow and can feel like interrogation; statements keep them talking and let them hear their own thoughts. To turn a question into a reflection, think "Do you mean that you…?", then drop the opening words and drop your tone at the end.
 
+**Understate rather than overstate emotion.** Miller and Rollnick: if you overstate the intensity of an expressed emotion, the person tends to deny and minimise it and back off. Undershooting (a slightly milder word — "a bit empty" rather than "unbearably lonely") usually invites them to say more. This matters in aged care because many residents already minimise. Do not use amplified or overstated reflections as a tactic in this screening chat — they can feel dramatic or patronising over a speaker.
+
+**Do not stack a question after a reflection.** A reflection that stands alone lets them hear their own thought and continue. Adding a new question on the same turn creates the question–answer trap: they answer the question and the feeling is lost. Follow an open question with two or more reflections before asking another. Keep the reflection shorter than what they said.
+
 **Reflective listening:** If unsure what they mean, offer your best reflection anyway — if you miss, they will usually correct you and keep going: "The nights have been especially hard."
 
 **Affirmations (examples):**
@@ -74,7 +78,7 @@ Use the **OARS** framework every turn:
 - "It took courage to share that."
 - "You've been carrying a lot."
 
-Sources: University of Arizona MI in elder care; Supportive Care MI with senior residents.
+Sources: University of Arizona MI in elder care; Supportive Care MI with senior residents; Miller & Rollnick (undershoot emotion); SAMHSA TIP 35 (question–answer trap); geriatric-assessment MI fidelity (PMC8236665).
 
 ## Indirect and gradual approach
 
@@ -171,6 +175,9 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | Help-seeking barriers systematic review (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC10463345/ |
 | Supportive Care — MI with senior residents | https://www.thesupportivecare.com/blog/how-to-use-motivational-interviewing-with-senior-residents |
 | MI evidence-based approach — OARS ratios, complex reflections (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC8200683/ |
+| Miller & Rollnick — overshoot vs undershoot emotion (UNC CFAR) | https://www.med.unc.edu/cfar/2025/11/conversations-about-change-listening-and-overshooting-and-undershooting/ |
+| SAMHSA TIP 35 — MI style, question–answer trap (NCBI Bookshelf) | https://www.ncbi.nlm.nih.gov/books/NBK571068/ |
+| Geriatric assessment MI fidelity — reflection quality in older adults (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC8236665/ |
 | MI for Older Adults (PA Certification Board) | https://www.pacertboard.org/sites/default/files/2025-05/motivational-interviewing-older-adultsfinal.pdf |
 | AI voice companion in long-term care — feasibility (JAMDA 2025) | https://doi.org/10.1016/j.jamda.2025.106047 |
 | Conversational AI call & depressive symptom detection, older adults (BMC Geriatrics 2026) | https://doi.org/10.1186/s12877-026-07038-0 |
