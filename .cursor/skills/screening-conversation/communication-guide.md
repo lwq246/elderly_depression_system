@@ -23,22 +23,29 @@ Sources: RASA RACF Toolkit; Murray PHN residential aged care guide; Peregrine Ce
 
 ## Stigma and language
 
-Many older adults grew up when mental health was taboo. **"Depression"** can carry shame, weakness, or loss of autonomy.
+Many older adults grew up when mental health was taboo. **"Depression"** can carry shame, weakness, or loss of autonomy. In CMS/HHS focus groups, providers said the wall goes up at the word itself; residents often hear a mood question as "are you crazy?" Nursing-home residents have asked the same ("Does that mean I'm crazy?"). In Singapore, GPs report that fear of being labelled, of IMH, of burdening family, or of losing autonomy can prompt rejection of any hint of a mental-health problem — even when distress is present.
 
 **Prefer:**
 - "low" / "down" / "not yourself lately"
 - "spirits" / "how you've been coping"
 - "stressed" / "tense" / "worried" / "on edge"
 - "sleep" / "energy" / "appetite" as gentle entry points
+- Universalising the chat: "I have a short chat with everyone who comes in" (same idea as "I ask every patient this")
 
 **Avoid:**
 - "Are you depressed?" / "You have depression"
 - "Mental illness" / "psychiatric" / questionnaire jargon
 - "You should be grateful" / "Look on the bright side"
+- Arguing the label ("I didn't say you were crazy")
+- Treating disclosure as a confession ("I'm glad you finally admitted that")
+- Implying they were singled out ("we wanted to check on you")
+- "Why haven't you told anyone?" — that blames them for protecting face
+
+**If they say "I'm not crazy" / "nothing wrong with me":** treat it as face-saving, not proof they are fine. Do not argue. Universalise the chat, then return to daily life. Attribute difficulty to the **situation** ("the nights have been long"), not their **character** ("you're a lonely person") — older people more readily talk about circumstances than about a flawed self.
 
 Frame the chat as **wellbeing and daily life**, not a mental health test. Discussing sleep or energy is an accepted **indirect entry** when mood is hard to name.
 
-Sources: NDT review (recognizing depression in elderly); BJMP depression in older adults; BMC geriatrics help-seeking review; Engaging older men in depression care (PMC2981127).
+Sources: CMS/HHS screening barriers (doi:10.1093/geroni/igy023.1890); nursing-home preference study (doi:10.3928/00989134-20151218-02); Singapore GP late-life depression (PMC11367466); NDT review; BJMP; BMC geriatrics help-seeking review; Engaging older men in depression care (PMC2981127).
 
 ## How depression often shows up
 
@@ -165,7 +172,9 @@ Sources: RASA RACF Toolkit; standard aged-care safety protocols.
 | University of Arizona — MI in elder care | https://aging.arizona.edu/sites/default/files/2023-03/Motivational%20Interviewing.pdf |
 | Recognizing depression in the elderly (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC9741828/ |
 | Depression in older adults (BJMP) | https://www.bjmp.org/content/depression-older-adults |
-| Barriers to depression screening in older adults | https://doi.org/10.1093/geroni/igy023.1890 |
+| Barriers to depression screening in older adults (CMS/HHS focus groups) | https://doi.org/10.1093/geroni/igy023.1890 |
+| Nursing-home mental health preferences — "Does that mean I'm crazy?" | https://doi.org/10.3928/00989134-20151218-02 |
+| Late-life depression in Singapore — GP perspectives (PMC11367466) | https://pmc.ncbi.nlm.nih.gov/articles/PMC11367466/ |
 | Engaging older men in depression care (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC2981127/ |
 | Somatic symptoms as barrier to detection (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC2805563/ |
 | Help-seeking barriers systematic review (PMC) | https://pmc.ncbi.nlm.nih.gov/articles/PMC10463345/ |
