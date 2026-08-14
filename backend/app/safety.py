@@ -52,6 +52,13 @@ _STRONG: tuple[str, ...] = (
     "do not want to be here",
     "don't want to live",
     "do not want to live",
+    "wasn't here",
+    "wasnt here",
+    "weren't here",
+    "werent here",
+    "not here anymore",
+    "wouldn't mind if i",
+    "wouldnt mind if i",
 )
 
 # Cues that commonly appear inside denials ("I do not wish to hurt myself").
@@ -82,12 +89,18 @@ _DENIAL: tuple[str, ...] = (
 
 def text_signals_safety_risk(text: str) -> bool:
     """True when a single utterance contains explicit self-harm risk language."""
-    t = (text or "").lower()
+    t = _normalize(text)
     if any(cue in t for cue in _STRONG):
         return True
     if any(cue in t for cue in _AMBIGUOUS):
         return not any(denial in t for denial in _DENIAL)
     return False
+
+
+def _normalize(text: str) -> str:
+    """Lowercase and fold curly apostrophes so STT punctuation still matches."""
+    t = (text or "").lower()
+    return t.replace("\u2019", "'").replace("\u2018", "'").replace("`", "'")
 
 
 def transcript_signals_safety_risk(transcript: list[dict[str, Any]]) -> bool:

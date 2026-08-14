@@ -7,6 +7,7 @@ from backend.rag.vocab.retrieve import (
     _LocaleIndex,
     format_vocab_block,
     retrieve_relevant_vocab,
+    retrieve_vocab_for_analyst,
 )
 
 SAMPLE_MD = """# Local vocabulary — test
@@ -92,6 +93,112 @@ class TestLiteralMatching(unittest.TestCase):
         self._install_index()
         got = vocab_retrieve._literal_matches("en-AU", "no worries, she'll be right mate")
         self.assertEqual([t.canonical for t in got], ["she'll be right"])
+
+
+class TestAhoCorasickEdgeCases(unittest.TestCase):
+    """Boundary / overlap / normalisation behaviour of the literal automaton."""
+
+    def _install(self, alias_to_term):
+        vocab_retrieve._locale_index_cache.clear()
+        index = _LocaleIndex(automaton=vocab_retrieve._build_automaton(alias_to_term))
+        vocab_retrieve._locale_index_cache["en-AU"] = index
+
+    def test_suffix_overlap_she_does_not_emit_he(self):
+        # "he" is a suffix of "she"; the automaton's output link surfaces both, but the
+        # word-boundary guard must drop the embedded "he".
+        self._install({"he": VocabTerm("he", "m"), "she": VocabTerm("she", "f")})
+        self.assertEqual(
+            [t.canonical for t in vocab_retrieve._literal_matches("en-AU", "she is tired")],
+            ["she"],
+        )
+        # A real standalone "he" still matches.
+        self.assertEqual(
+            [t.canonical for t in vocab_retrieve._literal_matches("en-AU", "he is here")],
+            ["he"],
+        )
+
+    def test_case_insensitive(self):
+        self._install({"crook": VocabTerm("crook", "unwell")})
+        self.assertEqual(
+            [t.canonical for t in vocab_retrieve._literal_matches("en-AU", "Feeling CROOK today")],
+            ["crook"],
+        )
+
+    def test_punctuation_is_a_boundary(self):
+        self._install({"crook": VocabTerm("crook", "unwell")})
+        for utt in ("i feel crook.", "crook, really", "(crook)", "crook"):
+            self.assertEqual(
+                [t.canonical for t in vocab_retrieve._literal_matches("en-AU", utt)],
+                ["crook"],
+                msg=utt,
+            )
+
+    def test_start_and_end_of_string(self):
+        self._install({"crook": VocabTerm("crook", "unwell")})
+        self.assertEqual(
+            [t.canonical for t in vocab_retrieve._literal_matches("en-AU", "crook")], ["crook"]
+        )
+
+    def test_repeated_occurrences_deduped(self):
+        self._install({"crook": VocabTerm("crook", "unwell")})
+        self.assertEqual(
+            [t.canonical for t in vocab_retrieve._literal_matches("en-AU", "crook crook crook")],
+            ["crook"],
+        )
+
+    def test_embedded_substring_rejected(self):
+        self._install({"sian": VocabTerm("sian", "low mood")})
+        self.assertEqual(vocab_retrieve._literal_matches("en-AU", "an Asian meal"), [])
+
+    def test_empty_and_whitespace(self):
+        self._install({"crook": VocabTerm("crook", "unwell")})
+        self.assertEqual(vocab_retrieve._literal_matches("en-AU", ""), [])
+        self.assertEqual(vocab_retrieve._literal_matches("en-AU", "   "), [])
+
+    def test_no_automaton_returns_empty(self):
+        vocab_retrieve._locale_index_cache.clear()
+        vocab_retrieve._locale_index_cache["en-AU"] = _LocaleIndex(automaton=None)
+        self.assertEqual(vocab_retrieve._literal_matches("en-AU", "feeling crook"), [])
+
+
+class TestAnalystTranscriptRetrieval(unittest.TestCase):
+    """retrieve_vocab_for_analyst: literal-only, whole-transcript, semantic never invoked."""
+
+    def _install(self, alias_to_term):
+        vocab_retrieve._locale_index_cache.clear()
+        index = _LocaleIndex(automaton=vocab_retrieve._build_automaton(alias_to_term))
+        vocab_retrieve._locale_index_cache["en-AU"] = index
+
+    def test_collects_all_spoken_terms_across_transcript(self):
+        worn = VocabTerm("knackered", "exhausted")
+        self._install(
+            {
+                "crook": VocabTerm("crook", "unwell"),
+                "knackered": worn,
+                "worn out": worn,
+                "sian": VocabTerm("sian", "low mood"),
+            }
+        )
+        transcript_text = "I feel crook today\nreally worn out\nand a bit crook again"
+        got = retrieve_vocab_for_analyst("en-AU", transcript_text)
+        self.assertEqual({t.canonical for t in got}, {"crook", "knackered"})
+
+    def test_semantic_lane_never_invoked_even_when_flag_on(self):
+        self._install({"crook": VocabTerm("crook", "unwell")})
+
+        def _boom(*a, **k):  # pragma: no cover - must never run
+            raise AssertionError("semantic lane must not run for the analyst pass")
+
+        orig_sem = vocab_retrieve._semantic_matches
+        orig_flag = vocab_retrieve.settings.rag_vocab_semantic
+        vocab_retrieve._semantic_matches = _boom
+        vocab_retrieve.settings.rag_vocab_semantic = True
+        try:
+            got = retrieve_vocab_for_analyst("en-AU", "feeling crook")
+        finally:
+            vocab_retrieve._semantic_matches = orig_sem
+            vocab_retrieve.settings.rag_vocab_semantic = orig_flag
+        self.assertEqual([t.canonical for t in got], ["crook"])
 
 
 class TestMergeAndFormat(unittest.TestCase):

@@ -24,18 +24,18 @@ Research-informed principles (distilled, not copied): [reference.md](reference.m
 
 ## Local vocabulary
 
-Research (Cultural Diversity in Ageing; Multicultural NSW): aged care should use **plain English** — but Australian residents often say **crook**, **flat**, **off your food**, **yarn**, **she'll be right**.
+Research (Cultural Diversity in Ageing; Multicultural NSW; healthdirect; ANDC): aged care should use **plain English** — but Australian residents often say **crook**, **flat**, **not myself**, **off your food**, **she'll be right**.
 
 **Rules:**
 
-1. **Mirror first** — reflect *crook*, *flat*, *knackered*, *keeping to yourself* in your reply
+1. **Mirror first** — reflect *crook*, *flat*, *not myself*, *knackered*, *keeping to yourself* in your reply
 2. **Plain English default** — especially in CALD-heavy facilities (colloquialism may not translate)
 3. **Local-light mode** — `speech_register: local-light` allows yarn, cuppa, morning tea, G'day in opener
 4. **Max one colloquialism per turn** — avoid blokey chains ("mate, yeah nah")
-5. **CALD residents** — simple concrete words; do not assume they know rural slang
-6. **Men / stoicism** — "I'm fine" and "she'll be right" get one gentle probe, not argument
+5. **CALD residents** — simple concrete words; do not assume they know rural slang or *Rookwood*
+6. **Men / stoicism** — "I'm fine", "no worries", and "she'll be right" get one gentle probe, not argument
 
-**Common resident words (screening):** crook, flat, worn out, off your food, not sleeping, quiet, down, stressed.
+**Common resident words (screening):** crook, not myself, flat, worn out, off your food, not sleeping, keeping to yourself, she'll be right, doing it tough.
 
 Screening word meanings are in **Local vocabulary reference** below. Audit detail and sources: [local-vocabulary.md](local-vocabulary.md)
 
@@ -68,12 +68,11 @@ Many residents are **culturally and linguistically diverse** (NSW TMHC; RACGP Si
 
 ## Social norms
 
-Australian research: **stoicism**, **self-reliance**, and **restrictive emotionality** strongly reduce help-seeking (Lancet Healthy Longevity 2025; Life in Mind; rural stoicism studies). Older men — **especially 85+** — have the **highest suicide rate** of any group, and older men seek help at about **half** the rate of older women.
+Australian research: **stoicism**, **self-reliance**, and **visibility** in communities affect help-seeking (rural stoicism studies; older men's mental health research).
 
 - **Family** — children or grandkids interstate or overseas; loneliness when visits are rare
-- **Stoicism is a cue, not reassurance** — "she'll be right", "I'm fine", "don't get lonely" often mask distress and can co-exist with high loneliness. Treat them as a signal to gently probe, not to move on. Do not close a flat or withdrawn session without a gentle safety check
+- **Stoicism** — "she'll be right", "I'm fine", "don't get lonely" may hide distress; **one gentle probe**, then move on
 - **Men's presentation** — boredom, irritability, physical complaints before mood words — use somatic entry
-- **Being listened to helps** — older men disclose more when they feel genuinely heard and understood, not advised; lead with reflection over questions
 - **Somatic entry** — poor sleep or appetite may be easier than "feeling sad"
 - **Activity framing** — garden, morning tea, men's shed-style routines as natural probes (without claiming to be formal therapy)
 - **Privacy vs help** — some fear being "looked in on" in small communities; calm, non-judgmental tone

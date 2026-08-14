@@ -6,6 +6,8 @@ const nextConfig = {
   // Use .mjs (not .ts) so Next does not need native SWC just to read this file.
   experimental: {
     useWasmBinary: true,
+    // Analyst + RAG can exceed the default ~30s rewrite proxy timeout.
+    proxyTimeout: 180_000,
   },
   async rewrites() {
     return [

@@ -39,8 +39,12 @@ Principles distilled for **en-AU** speech adaptation. Not a reproduction of sour
 | healthdirect — Depression in older people | https://www.healthdirect.gov.au/depression-in-older-people | Somatic presentation; stigma; "not coping" |
 | NSW Health — Wellbeing in Later Life | https://www.health.nsw.gov.au/mentalhealth/resources/Publications/wellbeing-in-later-life.pdf | Beyond Blue; older adult mental health programs |
 | AIHW — CALD older Australians | https://www.aihw.gov.au/reports/older-people/older-australians/contents/population-groups-of-interest/culturally-linguistically-diverse-people | Language diversity in RAC; plain English priority |
-| ANU ANDC — Australian words (crook, etc.) | https://slll.cass.anu.edu.au/centres/andc/meanings-origins/t | Authentic Aus. word meanings |
+| ANU ANDC — crook | https://slll.cass.anu.edu.au/centres/andc/meanings-origins/c | Crook = unwell / bad; cuppa in older AU everyday speech |
+| ANU ANDC — yakka / hard yakka | https://slll.cass.anu.edu.au/centres/andc/meanings-origins/y | Hard yakka = strenuous work / effort |
+| ANU ANDC — no worries | https://slll.cass.anu.edu.au/centres/andc/meanings-origins/n | Minimising / “all fine” assurance |
+| Macquarie Word Map — crook as Rookwood | https://www.macquariedictionary.com.au/resources/aus/word/map/search/word/crook/New%20South%20Wales/ | Older-speaker “very unwell”; CALD-unsafe to introduce |
 | PalliAGED — Mental illness in practice | https://www.palliaged.com.au/Improving-Care/Complex-Needs/Mental-Illness | Mood/withdrawal cues in aged care |
+| healthdirect — Depression (general symptoms) | https://www.healthdirect.gov.au/depression | Sad, low, isolated, sleep/appetite, irritability |
 
 Canonical term list (runtime): `backend/rag/vocab/data.py` → Chroma collection `screening-culture-vocabulary`.
 
@@ -50,22 +54,23 @@ Distilled for companion per-turn retrieval. One general meaning per row. **Not**
 
 | Term group (examples) | General meaning | Primary sources |
 |-----------------------|-----------------|-----------------|
-| crook, crook as a dog | unwell | ANDC; Aus. slang usage |
-| flat, bit blue, not myself, black dog, down in the dumps | low mood | healthdirect; Beyond Blue / Black Dog Institute public language |
-| knackered, worn out, buggered, rooted, stuffed, run down | exhausted / fatigue | Informal Aus. fatigue terms; healthdirect somatic cues |
-| off your food, gone off my food | low appetite | RAC daily-life phrasing |
-| not sleeping, crappy sleep | poor sleep | healthdirect somatic depression |
-| aches and pains, everything hurts | pain | healthdirect older depression presentation |
-| keeping to yourself, a bit quiet | withdrawal | PalliAGED; RAC behavioural cues |
-| nothing to do, bored stiff, can't be bothered | boredom / low energy / withdrawal | RAC boredom/loneliness literature (ABC, NARI themes) |
-| lonely, a bit lonely | loneliness | AIHW CALD; IJERPH rural loneliness |
-| she'll be right, don't get lonely | minimising | RRH stoicism; IJERPH "don't get lonely" |
-| doing it tough, tough time, hard yakka | struggling | Open Arms; everyday Aus. hardship phrasing |
-| overwhelmed, stressed out | overwhelmed | Plain-language distress (CALD-safe when resident-led) |
-| dusty, ropeable | irritable / angry | Green's Dictionary of Slang; men's irritable presentation (NARI, PMC2981127) |
+| crook, crook as a dog, crook as Rookwood | unwell | ANDC; Macquarie Word Map |
+| under the weather, off colour, lurgy | mildly unwell | Everyday Aus.; healthdirect somatic entry |
+| flat, a bit down, a bit blue, not myself, black dog, down in the dumps | low mood | healthdirect; Beyond Blue / Black Dog Institute public language |
+| not coping | struggling (often instead of “depressed”) | healthdirect older depression |
+| knackered, worn out, buggered, stuffed, run down, shattered | exhausted / fatigue | Informal Aus. fatigue terms; healthdirect somatic cues |
+| off your food, gone off my food, not eating | low appetite | RAC daily-life phrasing; healthdirect |
+| not sleeping, crappy sleep, tossing and turning | poor sleep | healthdirect somatic depression |
+| aches and pains, bung knee, dicky ticker | pain / body worry | healthdirect older depression presentation |
+| keeping to yourself, a bit quiet, not going out | withdrawal | PalliAGED; healthdirect “not leaving the house” |
+| nothing to do, bored stiff, can't be bothered | boredom / low energy / withdrawal | RAC boredom/loneliness literature |
+| lonely, a bit lonely, rattling around, missing the kids | loneliness | AIHW CALD; IJERPH rural loneliness |
+| she'll be right, she'll be apples, no worries, don't get lonely | minimising | ANDC; RRH stoicism; IJERPH |
+| doing it tough, tough time, hard yakka, had a gutful | struggling | ANDC yakka; everyday Aus. hardship phrasing |
+| cranky, snappy, on edge, a bit nervy | irritable / anxious | healthdirect irritability; older men's presentation |
 | been going, how you going | how are you | Standard Aus. wellbeing opener |
 
-**Excluded deliberately:** `flat out` (means busy, not low mood), `gone off` alone (spoiled food), `yarn` (conversation, not a symptom).
+**Excluded deliberately:** `flat out` (busy, not low mood), `gone off` alone (spoiled food), `go crook at` (get angry), `yarn` (conversation, not a symptom), `rooted` / `wog` (too vulgar or ambiguous for AI).
 
 **CALD note:** Mirror colloquial terms only when the resident uses them first; default to plain English ([Communication practice guide](https://www.culturaldiversity.com.au/files/Communication.pdf)).
 

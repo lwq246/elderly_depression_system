@@ -35,10 +35,14 @@ Principles distilled for **en-SG** speech adaptation. Not a reproduction of sour
 
 | Source | URL | Relevance |
 |--------|-----|-----------|
-| Singapore nursing English — elderly patients (iWorld Learning) | https://www.iworldlearning.com/article/nwHAl3yH.html | Giddy, breathless, Uncle/Auntie, buay tahan, local terms |
-| CGH i-COMM dialect app (Straits Times) | https://www.straitstimes.com/singapore/health/enhanced-app-helps-cgh-nurses-converse-with-patients-in-cantonese-hokkien-and-malay | Casual conversational ward phrases; dialect context |
+| Singapore nursing English — elderly patients (iWorld Learning) | https://www.iworldlearning.com/article/nwHAl3yH.html | Giddy, breathless, wind/angin, heatiness, sakit, buay tahan, Uncle/Auntie, Mak Cik/Pak Cik, sugar = diabetes, food no taste |
+| CGH i-COMM dialect app (Straits Times) | https://www.straitstimes.com/singapore/health/enhanced-app-helps-cgh-nurses-converse-with-patients-in-cantonese-hokkien-and-malay | 500 ward phrases in Cantonese, Hokkien, Malay; AI is not a dialect interpreter |
 | Patronising communication — Chinese Singaporeans (NTU) | https://doi.org/10.32657/10356/163064 | Avoid forced or patronising local speech |
 | Singlish particles commentary | https://meanwhileinsingapore.substack.com/p/12-lah-leh-lor-land-lesser-known | Mirror-only caution for lah/leh/lor |
+| Szücs et al. part I (Lancet Reg Health West Pac) | https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11367466/ | “Not like myself”; slower/weaker; no appetite; can’t sleep; *pantang* to talk about sadness; stoic “I’m fine” |
+| Szücs et al. part II | https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11758407/ | Malay *kemurungan* less loaded than “depression”; dialect emotion words hard to translate |
+| Shiraz et al. ageing interviews | https://pmc.ncbi.nlm.nih.gov/articles/PMC7584554/ | “Heart pain” as emotional idiom; thinking a lot; burden on children |
+| CNA — seniors mental health | https://www.channelnewsasia.com/commentary/singapore-senior-world-mental-health-day-community-activity-gp-peer-support-3831996 | Not wanting to be a burden; curiosity over quick reassurance |
 
 Full word lists: [local-vocabulary.md](local-vocabulary.md)
 

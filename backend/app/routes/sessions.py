@@ -117,7 +117,10 @@ async def session_exit(session_id: str, request: Request):
     closing = f"Thank you for chatting with me today. Take care, {name}."
     with llm_capture_scope(session_id, enabled=capture_enabled_for_request(request)):
         with timed_span("analyst_run", session_id=session_id, locale=session["locale"]) as span:
-            report, errors = await run_analyst(session["transcript"], locale=session["locale"])
+            try:
+                report, errors = await run_analyst(session["transcript"], locale=session["locale"])
+            except Exception as exc:
+                raise HTTPException(status_code=502, detail=f"Analyst failed: {exc}") from exc
     ended = end_session(session_id, closing_message=closing, report=report, validation_errors=errors)
     log_session_event(
         "session_exit",
@@ -142,7 +145,10 @@ async def session_analyze(session_id: str, request: Request):
 
     with llm_capture_scope(session_id, enabled=capture_enabled_for_request(request)):
         with timed_span("analyst_run", session_id=session_id, locale=session["locale"]) as span:
-            report, errors = await run_analyst(session["transcript"], locale=session["locale"])
+            try:
+                report, errors = await run_analyst(session["transcript"], locale=session["locale"])
+            except Exception as exc:
+                raise HTTPException(status_code=502, detail=f"Analyst failed: {exc}") from exc
     save_report(session_id, report, errors)
     session = get_session(session_id)
     log_session_event(

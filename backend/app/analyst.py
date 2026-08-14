@@ -1,4 +1,5 @@
 from typing import Any
+import json
 
 from .config import settings
 from .llm import chat_completion, parse_json_response
@@ -87,7 +88,12 @@ async def run_analyst(
             attempt=attempt + 1,
         )
         content = await chat_completion(system=system, user=user, temperature=0.2, json_mode=True)
-        report = await parse_json_response(content)
+        try:
+            report = await parse_json_response(content)
+        except (json.JSONDecodeError, TypeError, KeyError) as exc:
+            last_errors = [f"Analyst returned invalid JSON: {exc}"]
+            user += "\n\nYour previous reply was not valid JSON. Respond with JSON only."
+            continue
         ref_errors = resolve_evidence_refs(report, transcript)
         errors = ref_errors + validate_analyst_report(report, transcript)
         if not errors:
@@ -107,8 +113,11 @@ async def run_analyst(
         json_mode=True,
         attempt=4,
     )
-    report = await parse_json_response(
-        await chat_completion(system=system, user=user, temperature=0.1, json_mode=True)
-    )
+    try:
+        report = await parse_json_response(
+            await chat_completion(system=system, user=user, temperature=0.1, json_mode=True)
+        )
+    except (json.JSONDecodeError, TypeError, KeyError):
+        return {}, last_errors + ["Analyst returned invalid JSON after retries"]
     ref_errors = resolve_evidence_refs(report, transcript)
     return report, ref_errors + validate_analyst_report(report, transcript)

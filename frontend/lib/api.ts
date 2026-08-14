@@ -1,7 +1,13 @@
 import type { Health, Resident, Session, SessionSummary } from "@/lib/types";
 
+// Dev: talk to FastAPI directly. Next.js rewrites time out at ~30s, and the analyst
+// (RAG summary + report) often takes longer — the proxy then surfaces as a 500.
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ??
+  (process.env.NODE_ENV === "development" ? "http://127.0.0.1:8000" : "");
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, {
+  const response = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     ...init,
   });
